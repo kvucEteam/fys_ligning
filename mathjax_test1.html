@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MathJax test</title>
+    <!-- http://www.robotstxt.org/meta.html -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../library/css/styles.css" type="text/css" />
+    <link rel="stylesheet" href="ligning.css" type="text/css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+
+    <body>
+        <div class="container-fluid">
+
+            <h1> Test of static and dynamic MathJax content </h1>
+
+
+            <h3>Static content</h3>
+
+            There are two solutions to \(ax^2 + bx + c = 0\) and they are
+            $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+
+
+            <h3>Dynamic content</h3>
+
+            <div id="formula"></div>
+
+            A: <input type="text" id="valueA">
+            B: <input type="text" id="valueB">
+            C: <input type="text" id="valueC">
+
+            <p><input id="update" type="button" value="Update" /></p>
+            
+
+        </div>
+        <script src="../library/vendor_scripts.js"></script>
+        <script src="../library/custom_scripts.js"></script>
+
+        <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>   <!--  The perferred location is in the head-tag, and not the body-tag  -->
+
+        <script type="text/javascript">
+
+
+            /**************************************************************************************************************
+            *
+            *       The code in this page is strongly inspred from:  
+            *       http://stackoverflow.com/questions/38751145/rendering-mathjax-updated-with-html
+            *
+            **************************************************************************************************************/
+
+
+            var DynamicMJ = {
+
+                formula: $("#formula"),
+
+                update: function () {
+
+                    var a = $("#valueA").val();
+                    var b = $("#valueB").val();
+                    var c = $("#valueC").val();
+                    
+                    var tex = "\\frac{"+a+"}{2}+ \\frac{"+b+"}{2} = \\frac{"+c+"}{5}";
+
+                    this.formula.html("\\["+tex+"\\]");
+                    
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.formula[0]]);
+                }
+            };
+
+            $( document ).on('click', "#update", function(event){
+                DynamicMJ.update();
+            });
+
+            $(document).ready(function() {
+                DynamicMJ.update();
+            });
+
+        </script>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            one_line_footer();
+        });
+        </script>
+    </body>
+
+</html>

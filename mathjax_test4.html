@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MathJax test</title>
+    <!-- http://www.robotstxt.org/meta.html -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../library/css/styles.css" type="text/css" />
+    <link rel="stylesheet" href="ligning.css" type="text/css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <style type="text/css">
+
+        .font150{
+            font-size: 150%;
+        }
+        .red{
+            color: #F00;
+        }
+
+
+        .mjx-mrow .mjx-mi:nth-child(2) {
+            color: #F00;
+        }
+
+        #MJXc-Node-54{
+            color: #F00;
+        }
+
+    </style>
+</head>
+
+    <body>
+        <div class="container-fluid">
+
+            <h1 id="test"> Test of diffrent font-manipulations needed in Fysik C </h1>
+
+            <h3>CSS manipulation of entire the equation</h3>
+
+            Normal output:
+            <span id="normal"> $$ \frac{Q}{C} = \frac{ C \cdot m \cdot \Delta T }{C} $$ </span> 
+
+            150% CSS font-size:
+            <span class="font150"> $$ \frac{Q}{C} = \frac{ C \cdot m \cdot \Delta T }{C} $$ </span> 
+
+            red font-color:
+            <span class="red"> $$ \frac{Q}{C} = \frac{ C \cdot m \cdot \Delta T }{C} $$ </span> 
+
+            <h3>CSS manipulation of induvidual terms in the equation</h3>
+
+            Normal output size, one term red:
+            <span id="normal"> $$ \frac{Q}{C} = \frac{ C \cdot m \cdot \Delta T }{C} $$ </span> 
+            
+
+        </div>
+        <script src="../library/vendor_scripts.js"></script>
+        <script src="../library/custom_scripts.js"></script>
+
+        <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>   <!--  The perferred location is in the head-tag, and not the body-tag  -->
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            one_line_footer();
+        });
+        </script>
+    </body>
+
+</html>

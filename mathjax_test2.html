@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MathJax test</title>
+    <!-- http://www.robotstxt.org/meta.html -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../library/css/styles.css" type="text/css" />
+    <link rel="stylesheet" href="ligning.css" type="text/css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+
+    <body>
+        <div class="container-fluid">
+
+            <h1> Test of dynamic MathJax content, where HTML-placeholders are dynamic</h1>
+
+
+            <h3>LaTex input formulas</h3>
+
+            <div class="latexInput">\frac{1}{2}\sum\limits_{i=1}^n i^2</div> 
+            <div class="latexInput">\frac{2}{3}\sum\limits_{i=1}^n i^2</div> 
+            <div class="latexInput">\frac{3}{4}\sum\limits_{i=1}^n i^2</div> 
+
+
+            <h3>LaTex formular output</h3>
+
+            <div id="formulaContainer">
+            </div>
+            
+
+        </div>
+        <script src="../library/vendor_scripts.js"></script>
+        <script src="../library/custom_scripts.js"></script>
+
+        <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>   <!--  The perferred location is in the head-tag, and not the body-tag  -->
+
+        <script type="text/javascript">
+
+
+            var DynamicMJ = {
+
+                formulaContainer: $('#formulaContainer'),
+
+                loop: function(){
+                    var thisObj = this;
+                    $( ".latexInput" ).each(function( index, element ){
+                        thisObj.insert( $(element).text() );
+                    });
+                },
+                insert: function (tex) {
+
+                    // this.formulaContainer.append('LaTex input: '+tex+' - which translates into formula output: <span class="latexInput"> \\['+tex+'\\] </span>');   
+                    this.formulaContainer.append('LaTex input: <b><i>'+tex+'</i></b> - which translates into formula output: <span class="latexInput"> \\('+tex+'\\) </span> <br>');
+                    
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.formulaContainer[0]]);
+                }
+            };
+
+        
+            $(document).ready(function() {
+                DynamicMJ.loop();
+            });
+
+        </script>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            one_line_footer();
+        });
+        </script>
+    </body>
+
+</html>

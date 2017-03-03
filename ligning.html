@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Fysik C ligninger</title>
+    <!-- http://www.robotstxt.org/meta.html -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../library/css/styles.css" type="text/css" />
+    <link rel="stylesheet" href="ligning.css" type="text/css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+
+    <body>
+        <div class="container-fluid">
+
+            <div id="interfaceContainer"></div>
+
+        </div>
+        <script type="text/javascript" src="../library/vendor_scripts.js"></script>
+        <script type="text/javascript" src="../library/custom_scripts.js"></script>
+
+        <!--  The perferred location is in the head-tag, and not the body-tag:  --> 
+         <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>  
+
+        <script type="text/javascript">
+            getAjaxData("GET", "json/quizData.json", false, "json");
+        </script>
+
+<!-- 
+        <script type="text/javascript" src="solver.js"></script>
+ -->   
+      
+        <script type="text/javascript" src="ligning.js"></script>
+
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            one_line_footer();
+        });
+        </script>
+    </body>
+
+</html>

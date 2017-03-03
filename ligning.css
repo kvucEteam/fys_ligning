@@ -1,0 +1,45 @@
+ 
+
+#interface{
+	
+}
+
+#questionContainer{
+	/*border: 1px solid #F00;*/
+	margin-bottom: 40px;
+}
+
+#equationContainer{
+	/*border: 1px solid #0F0;*/
+	font-size: 250%;
+}
+
+#btnContainer{
+	/*border: 1px solid #00F;*/ 
+}
+
+#next{
+	float: right;
+	margin-right: 0px;
+}
+
+.operatorGroup{
+	margin-bottom: 10px;
+}
+
+.hidden{
+	display: none;
+}
+
+.operator{
+	margin: 2px;
+	display: block;
+}
+
+.operator_small_1{
+	margin: 4px;
+	display: inline-block;
+}
+.subHeader {
+	margin-bottom: 10px;
+}
