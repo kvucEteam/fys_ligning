@@ -13,14 +13,16 @@
 	/*border: 1px solid #0F0;*/
 	font-size: 250%;
 }
+#equationContainer_hidden{
+	display: none;
+}
 
 #btnContainer{
 	/*border: 1px solid #00F;*/ 
 }
 
 #next{
-	float: right;
-	margin-right: 0px;
+	
 }
 
 .operatorGroup{
@@ -42,4 +44,39 @@
 }
 .subHeader {
 	margin-bottom: 10px;
+}
+
+.centered {
+/*
+	display: flex;
+  	justify-content: center;
+*/
+
+}
+
+#btnContainer{
+	display: inline-block;
+    margin-left: auto;
+    margin-right: auto 
+}
+
+.autoLeftSpacer{
+	display: inline-block;
+}
+
+.operator_inactive{
+	color: #cececc;
+}
+.operator_inactive:hover{
+	color: #cececc;
+	background-color: #e7e6e2;
+	cursor: inherit;
+}
+
+.subHeader_inactive{ 
+	color: #cececc;
+}
+
+.reduceBtn{
+
 }

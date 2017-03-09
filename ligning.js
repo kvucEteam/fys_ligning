@@ -56,7 +56,7 @@ console.log('outerParenthesisBound_COPY("((...)((...)))"): ' + JSON.stringify( o
 console.log('outerParenthesisBound_COPY("((...)((...)))(...)"): ' + JSON.stringify( outerParenthesisBound_COPY('((...)((...)))(...)')) );
 console.log('outerParenthesisBound_COPY("(a+b/c)*(d+(a+b/c))/e"): ' + JSON.stringify( outerParenthesisBound_COPY('(a+b/c)*(d+(a+b/c))/e')) );
 
-function returnParenthesisObj(formula, pArr, reducingTerm){
+function returnParenthesisObj(formula, pArr, delimiter){
 	var parenthesis; 
 	var formula_mod = formula;
 	var delim;
@@ -64,7 +64,7 @@ function returnParenthesisObj(formula, pArr, reducingTerm){
 	var parenthesisArr = [];
 	for (var n in pArr) {
 		parenthesis = formula.substring(pArr[n].left, pArr[n].right+1);
-		delim = '#'.repeat(parenthesis.length);
+		delim = delimiter.repeat(parenthesis.length);
 		formula_mod = formula_mod.replace(parenthesis, delim);
 		parenthesisArr.push(parenthesis);
 		delimArr.push(delim);
@@ -156,7 +156,7 @@ function makeFraction(equationSide) {
 	var pArr = outerParenthesisBound_COPY(equationSide);
 	console.log('makeFraction - pArr: ' + JSON.stringify(pArr));
 
-	var pObj = returnParenthesisObj(equationSide, pArr, '!#!');  
+	var pObj = returnParenthesisObj(equationSide, pArr, '#');  
 	console.log('makeFraction - pObj: ' + JSON.stringify(pObj)); 
 
 	var equationSide_mod = pObj.formula_mod;
@@ -353,7 +353,7 @@ function positionOfInnerMostParenthesisFraction(equationSide){
 
 function returnInnerParenthesisFraction(equationSide, pos_fraction) {
 
-	console.log('returnInnerParenthesisFraction - equationSide: ' + equationSide + ', pos_fraction: ' + pos_fraction);
+	console.log('\nreturnInnerParenthesisFraction - equationSide: ' + equationSide + ', pos_fraction: ' + pos_fraction);
 
 	var left, right, pos_left, pos_right, count, innerParenthesisFraction, delim, equationSide_mod;
 	
@@ -404,7 +404,312 @@ function returnInnerParenthesisFraction(equationSide, pos_fraction) {
 // returnInnerParenthesisFraction('(a+b)/c', 5);
 // returnInnerParenthesisFraction('a/(c+b)');
 // returnInnerParenthesisFraction('a*(b+c)/(d)', 7);
-// returnInnerParenthesisFraction('((a+b/c)+(d+(a+(b+z))/(q+w)*(r+t))/g)/e', 21);
+// returnInnerParenthesisFraction('((a+b/c)+(d+(a+(b+z))/(q+w)*(r+t))/g)/e', 21); 
+
+
+function suggestReducingTerm(formula){
+	formula = formula.replace(/ /g, '');
+	console.log('\nsuggestReducingTerm - formula: ' + formula);
+
+	var formulaArr = formula.split('=');
+	// var targetSide = (formulaArr[0].indexOf(fObj.target)!==-1)? formulaArr[0] : formulaArr[1];  // select the side of the the formula on which fObj.target is located.
+	if (formulaArr[0].indexOf(fObj.target)!==-1) {
+		var targetSide = removeOuterParenthesisAroundNonSpecialTerms_COPY(formulaArr[0]);
+		var nonTargetSide = removeOuterParenthesisAroundNonSpecialTerms_COPY(formulaArr[1]);
+		var varSide = 'left';
+	} else {
+		var targetSide = removeOuterParenthesisAroundNonSpecialTerms_COPY(formulaArr[1]);
+		var nonTargetSide = removeOuterParenthesisAroundNonSpecialTerms_COPY(formulaArr[0]);
+		var varSide = 'right';
+	}
+	console.log('suggestReducingTerm - targetSide: ' + targetSide + ', nonTargetSide: ' + nonTargetSide);
+
+	var opObj_targetSide = suggestReducingTerm_side(targetSide);
+	console.log('suggestReducingTerm - opObj_targetSide: ' + JSON.stringify(opObj_targetSide)); 
+
+	var opObj_nonTargetSide = suggestReducingTerm_side(nonTargetSide);
+	console.log('suggestReducingTerm - opObj_nonTargetSide: ' + JSON.stringify(opObj_nonTargetSide)); 
+
+	if (opObj_targetSide !== null) {
+		if ((opObj_targetSide.op == '+') || (opObj_targetSide.op == '-')) {
+			return '<div class="reduceBtn btn btn-info">Reducer med '+convertTermsToLatexTerms( opObj_targetSide.term )+'</div>';
+		}
+
+		if ((opObj_targetSide.op == '*') || (opObj_targetSide.op == '/')) {
+			return '<div class="reduceBtn btn btn-info">Forkort med '+convertTermsToLatexTerms( opObj_targetSide.term )+'</div>';
+		}
+	} else if (opObj_nonTargetSide !== null) {
+		if ((opObj_nonTargetSide.op == '+') || (opObj_nonTargetSide.op == '-')) {
+			return '<div class="reduceBtn btn btn-info">Reducer med '+convertTermsToLatexTerms( opObj_nonTargetSide.term )+'</div>';
+		}
+
+		if ((opObj_nonTargetSide.op == '*') || (opObj_nonTargetSide.op == '/')) {
+			// return '<div class="reduceBtn btn btn-info">Forkort med '+opObj_nonTargetSide.term+'</div>';
+			return '<div class="reduceBtn btn btn-info">Forkort med \\('+convertTermsToLatexTerms( opObj_nonTargetSide.term )+'\\)</div>';
+		}
+	} else {
+		return '';
+	}
+}
+
+fObj = {"target":"b"};
+
+// suggestReducingTerm('k=(a+b)/(c+d)*e');        // , {"target":"b"}
+// suggestReducingTerm('k=e*(a+b)/e*(c+d)*e');    // , {"target":"b"}
+// suggestReducingTerm('k=e+(a+b)/e*(c+d)-e');    // , {"target":"b"}
+// // suggestReducingTerm('k=e*a+b/u*c+d-e+e-a');    // , {"target":"b"}
+// // suggestReducingTerm('k=err*ad+b/u*c+d-err+err-ad');    // , {"target":"b"}
+// // suggestReducingTerm('k=err*r+b/u*c+d-err+err-r');    // , {"target":"b"}
+// // suggestReducingTerm('k=err*r+(b/u*c+d)-err+err-r');    // , {"target":"b"}
+// // suggestReducingTerm('k=p*err*r+(b/u*c+d)-err+err-r');    // , {"target":"b"}
+// // suggestReducingTerm('k=p*err*r+(b/u*c+d)-err+err-r-(b/u*c+d)');    // , {"target":"b"}
+// // suggestReducingTerm('k=p*err*r+(b/u*c+d)+(t-w)-err+err-r-(b/u*c+d)-(t-w)');    // , {"target":"b"}
+// // suggestReducingTerm('k=p/p*b');    // , {"target":"b"}
+// // suggestReducingTerm('k=1/p*p*b');    // , {"target":"b"}
+// // suggestReducingTerm('k=1/p+p*b');    // , {"target":"b"}
+// suggestReducingTerm('k=e+(a+b)*e+(c+d)-(c+d)-e');    // , {"target":"b"}
+// suggestReducingTerm('k=e*(a+b)/e*(c+d)/(c+d)-e');    // , {"target":"b"}
+// suggestReducingTerm('k=e+e*(a+b)/e*(c+d)/(c+d)-e');    // , {"target":"b"}
+suggestReducingTerm('k=e+f+e*(a+b)/e*(c+d)/(c+d)-e');    // , {"target":"b"}
+
+
+function suggestReducingTerm_side(equationSide){
+	var pArr = outerParenthesisBound_COPY(equationSide);
+	console.log('suggestReducingTerm > suggestReducingTerm_side - pArr: ' + JSON.stringify(pArr));
+
+	var TtargetSide = removeParenthesis_formula_COPY(equationSide, pArr);   // <-------- (#-1-#) IMPORTANT : targetSide needs to be similar to iObj - see (#-2-#) below. NOTE: This is only used as a sanity-check
+	console.log('suggestReducingTerm > suggestReducingTerm_side - TtargetSide: ' + TtargetSide); 
+
+
+
+var pObj = returnParenthesisObj(equationSide, pArr, '@');  
+console.log('suggestReducingTerm > suggestReducingTerm_side  - pObj: ' + JSON.stringify(pObj)); 
+
+// TtargetSide = pObj.formula_mod.replace(/#/g, '@');
+TtargetSide = pObj.formula_mod;
+console.log('suggestReducingTerm > suggestReducingTerm_side  - TtargetSide: ' + TtargetSide);
+
+
+
+	var TtargetSide_mod = TtargetSide.replace(/(\*|\/|\+|\-)/g, '#');
+	console.log('suggestReducingTerm > suggestReducingTerm_side - TtargetSide_mod 1: ' + TtargetSide_mod); 
+
+
+for (var n in pObj.parenthesisArr) {
+	TtargetSide_mod = TtargetSide_mod.replace(pObj.delimArr[n], pObj.parenthesisArr[n]);
+	TtargetSide = TtargetSide.replace(pObj.delimArr[n], pObj.parenthesisArr[n]);
+}
+console.log('suggestReducingTerm > suggestReducingTerm_side  - TtargetSide_mod 2: ' + TtargetSide_mod);
+
+
+	var termArr = TtargetSide_mod.split('#');
+	console.log('suggestReducingTerm > suggestReducingTerm_side - termArr: ' + termArr);
+
+	var dublicateTerms = [];
+
+	for (var i in termArr){  // Find all the terms that are present two or more times in TtargetSide
+		for (var k in termArr){
+			if ((i < k) && (termArr[i] == termArr[k])) {
+				dublicateTerms.push(termArr[i]);
+			}
+		}
+	}
+	console.log('suggestReducingTerm > suggestReducingTerm_side - dublicateTerms: ' + dublicateTerms);
+
+	dublicateTerms = dublicateTerms.filter( onlyUnique );  // Filter dublicateTerms so each term only is present once. 
+	console.log('suggestReducingTerm > suggestReducingTerm_side - dublicateTerms: ' + dublicateTerms);
+
+	
+	var termOp, pos, count = 0;
+	var redTerms = [];
+	var redTermsObj = [];
+	var l = TtargetSide.length;
+	console.log('suggestReducingTerm > suggestReducingTerm_side - l: ' + l); 
+	for (var i in dublicateTerms){  // Collect all the terms that have one of the 4 operators both before and behind the term.
+		pos = TtargetSide.indexOf(dublicateTerms[i]);
+		while ((pos !== -1) && (count < 25)) {
+			
+			console.log('suggestReducingTerm > suggestReducingTerm_side - A0');
+			console.log('suggestReducingTerm > suggestReducingTerm_side - pos: ' + pos);
+
+			var opObj = returnSurroundingOps(dublicateTerms[i], pos, TtargetSide);
+
+			console.log('suggestReducingTerm > suggestReducingTerm_side - opObj: ' + JSON.stringify(opObj));
+			if ((opObj.opBegin !== null) && (opObj.opEnd !== null)) { // If the term has one of the 4 operators both before and behind the term, then add ti to redTerms...
+				redTerms.push(opObj.opBegin + dublicateTerms[i] + opObj.opEnd);
+				redTermsObj.push({opBegin: opObj.opBegin, redTerm: dublicateTerms[i], opEnd: opObj.opEnd, pos: pos}); 
+			}
+
+			pos = TtargetSide.indexOf(dublicateTerms[i], pos+1);
+
+			++count;
+
+		}
+		console.log('suggestReducingTerm > suggestReducingTerm_side - count: ' + count + ', pos: ' + pos + ', redTerms: ' + redTerms);
+	}
+	console.log('suggestReducingTerm > suggestReducingTerm_side - FINAL - redTerms: ' + redTerms);
+	console.log('suggestReducingTerm > suggestReducingTerm_side - FINAL - redTermsObj: ' + JSON.stringify(redTermsObj));
+
+
+
+	var invOp = {'*':'/', '/':'*', '+':'-', '-':'+'};
+
+	var reducingTerms = [];
+	var reducingTermsObj = [];
+	var opBegin2, opEnd2, term2, term;
+	for (var i = 0; i < redTerms.length; i++) {
+		opBegin = redTerms[i].substr(0, 1);
+		opEnd = redTerms[i].substr(redTerms[i].length-1, 1);
+		term = redTerms[i].substr(1, redTerms[i].length-2);
+		console.log('suggestReducingTerm > suggestReducingTerm_side - opBegin: ' + opBegin + ', term: ' + term + ', opEnd: ' + opEnd);
+
+		// for (var j = i; j < redTerms.length; j++) {
+		for (var j = 0; j < redTerms.length; j++) {
+			opBegin2 = redTerms[j].substr(0, 1);
+			opEnd2 = redTerms[j].substr(redTerms[j].length-1, 1);
+			term2 = redTerms[j].substr(1, redTerms[j].length-2);
+			console.log('suggestReducingTerm > suggestReducingTerm_side - opBegin2: ' + opBegin2 + ', term2: ' + term2 + ', opEnd2: ' + opEnd2);
+
+			if (term == term2) { // If the two terms are similar, e.g. "a = a", then...
+				console.log('suggestReducingTerm > suggestReducingTerm_side - B0 - redTerms[i]: ' + redTerms[i] + ', redTerms[j]: ' + redTerms[j] + ', opBegin: ' + opBegin + ', opBegin2: ' + opBegin2 + ', opEnd: ' + opEnd + ', opEnd2: ' + opEnd2);
+
+				if (('+-'.indexOf(opBegin)!==-1) && ('*/'.indexOf(opEnd)!==-1) && ('/'.indexOf(opBegin2)!==-1)) {  // CASE:  +-TERM/TERM  , e.g. the beginnig of a fraction.
+					console.log('suggestReducingTerm > suggestReducingTerm_side - B1');
+					reducingTerms.push({op: opBegin2, term: redTerms[j].substr(1, redTerms[j].length-2)});  // op = opBegin2 since this is the last term, and therefore "tells" if we need to add, subtract, multiply og devide to reduce the equation.
+					reducingTermsObj.push(redTermsObj[j]); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
+
+				}
+
+				if ((opBegin == invOp[opBegin2]) && ('+-'.indexOf(opEnd)!==-1) && ('+-'.indexOf(opEnd2)!==-1)) { // CASE: */+-TERM+- /*-+TERM+-
+					console.log('suggestReducingTerm > suggestReducingTerm_side - B2');
+					reducingTerms.push({op: opBegin2, term: redTerms[j].substr(1, redTerms[j].length-2)});  // op = opBegin2 since this is the last term, and therefore "tells" if we need to add, subtract, multiply og devide to reduce the equation.
+					reducingTermsObj.push(redTermsObj[j]); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
+				}
+
+				if (('*/'.indexOf(opBegin)!==-1) && (opBegin == invOp[opBegin2])) { // CASE: */TERM*/+- /*TERM*/+-
+					console.log('suggestReducingTerm > suggestReducingTerm_side - B3');
+					reducingTerms.push({op: opBegin2, term: redTerms[j].substr(1, redTerms[j].length-2)});  // op = opBegin2 since this is the last term, and therefore "tells" if we need to add, subtract, multiply og devide to reduce the equation.
+					reducingTermsObj.push(redTermsObj[j]); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
+				}
+			}
+		};
+	};
+	console.log('suggestReducingTerm > suggestReducingTerm_side - reducingTerms: ' + JSON.stringify(reducingTerms) + ', reducingTerms.length: ' + reducingTerms.length);
+	console.log('suggestReducingTerm > suggestReducingTerm_side - reducingTermsObj: ' + JSON.stringify(reducingTermsObj)); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
+
+
+	var TreducingTerms = [], reducingTerms_final = [], reducingTermsObj_final = [];
+	var termStr, invTermStr;
+	// for (var n = reducingTerms.length - 1; n >= 0; n--) {  // This removes parenthesis dublicates with operators and ther inverses! <---- This is a work around that might not be stable - needs to be tested!  
+	for (var n = 0; n < reducingTerms.length; n++) {	// This removes dublicate terms and dublicate parenthesis-terms with respect to operators and ther inverses!
+		termStr = reducingTerms[n].op+reducingTerms[n].term;
+		termStr_inv = invOp[reducingTerms[n].op]+reducingTerms[n].term;
+		if ((!elementInArray(TreducingTerms, termStr)) && (!elementInArray(TreducingTerms, termStr_inv))){
+			TreducingTerms.push(termStr);
+			reducingTerms_final.push(reducingTerms[n]);
+			reducingTermsObj_final.push(reducingTermsObj[n]); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
+		}
+	}
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTerms_final: ' + JSON.stringify(reducingTerms_final));
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTermsObj_final: ' + JSON.stringify(reducingTermsObj_final)); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
+
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - dublicateTerms 2: ' + dublicateTerms);
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - FINAL - redTerms 2: ' + redTerms);
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - FINAL - redTermsObj 2: ' + JSON.stringify(redTermsObj));
+
+	var reducingTermMem = null;
+	for (var n = reducingTerms_final.length - 1; n >= 0; n--) { // Return the last "+" or "-" term if exist, else return the last "*" or "/" term if exist, else return "null".
+		if ((reducingTerms_final[n].op == '+') || (reducingTerms_final[n].op == '-')) {
+			reducingTermMem = reducingTerms_final[n];
+			break;
+		} 
+
+		if (reducingTerms_final[n].op == '/') {
+			reducingTermMem = reducingTerms_final[n];
+		}
+
+		if ((reducingTermMem === null) && (reducingTerms_final[n].op == '*')) {
+			reducingTermMem = reducingTerms_final[n];
+		}
+	}
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTermMem: ' + JSON.stringify(reducingTermMem));
+
+	return reducingTermMem;
+}
+
+
+// e+e*(a+b)/e*(c+d)/(c+d)-e
+// 012345678901234567890123456789012345678901234567890
+//           |         |         |         |         |
+
+
+function returnSurroundingOps(term, termPos, equationSide) {
+	console.log('suggestReducingTerm > returnSurroundingOps - term: ' + term + ', termPos: ' + termPos + ', equationSide: ' + equationSide);
+
+	var opBegin = null, opEnd = null;
+
+	var opObj = {opBegin: opBegin, opEnd: opEnd};
+
+	var l = equationSide.length;
+	console.log('suggestReducingTerm > returnSurroundingOps - l: ' + l); 
+
+	if (term == equationSide) {
+		console.log('suggestReducingTerm > returnSurroundingOps - A0');
+		opObj = {opBegin: '+', opEnd: '+'};
+	} else {
+
+		if (termPos == 0) {
+			console.log('suggestReducingTerm > returnSurroundingOps - A1');
+			opEnd = equationSide.substr(term.length, 1);
+			opObj.opBegin = '+';
+			console.log('suggestReducingTerm > returnSurroundingOps - opBegin: ' + opBegin + ', opEnd: ' + opEnd + ', equationSide: ' + equationSide);
+			if ("*/+-".indexOf(opEnd)!==-1){
+				opObj.opEnd = opEnd;
+			} 
+		}
+
+		if ((0 < termPos) && (termPos < l - term.length)) {
+			console.log('suggestReducingTerm > returnSurroundingOps - A2');
+			opBegin = equationSide.substr(termPos-1, 1);
+			opEnd = equationSide.substr(termPos+term.length, 1);
+			console.log('suggestReducingTerm > returnSurroundingOps - opBegin: ' + opBegin + ', opEnd: ' + opEnd + ', equationSide: ' + equationSide);
+			if ("*/+-".indexOf(opBegin)!==-1){
+				opObj.opBegin = opBegin;
+			} 
+			if ("*/+-".indexOf(opEnd)!==-1){
+				opObj.opEnd = opEnd;
+			} 
+		}
+
+		if (termPos == l - term.length) {
+			console.log('suggestReducingTerm > returnSurroundingOps - A3');
+			opBegin = equationSide.substr(termPos-1, 1);
+			opObj.opEnd = '+';
+			console.log('suggestReducingTerm > returnSurroundingOps - opBegin: ' + opBegin + ', opEnd: ' + opEnd + ', equationSide: ' + equationSide);
+			if ("*/+-".indexOf(opBegin)!==-1){
+				opObj.opBegin = opBegin;
+			} 
+		}
+	}
+	console.log('suggestReducingTerm > returnSurroundingOps - opObj: ' + JSON.stringify(opObj)); 
+
+	return opObj;
+}
+
+// convertTermsToLatexTerms
+
+// err*ad+b/u*c+d-err+err-ad
+// 0123456789012345678901234567890
+//           |         |         |
+
+
+function elementInArray(tArray, element){
+    for (x in tArray){
+        if (tArray[x] == element) return true 
+    }
+    return false;
+}
+
 
 
 // ====================================================================================================================
@@ -430,10 +735,14 @@ function template() {
 	HTML += 	'<div id="rightColumn" class="col-xs-12 col-md-6">';
 	HTML += 		'<div id="questionContainer"></div>';
 	HTML += 		'<div id="equationContainer"></div>';
-	// HTML += 		'<div id="next" class="btn btn-primary">Næste</div><div class="Clear"></div>';
+	HTML += 		'<div id="equationContainer_hidden"></div>';
 	HTML += 	'</div>';
-	HTML += 	'<div id="leftColumn" class="col-xs-12 col-md-6">';
+	HTML += 	'<div id="leftColumn" class="col-xs-12 col-md-6">'; 
+	// HTML += 		((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered');
+	HTML += 		'<div class="autoLeftSpacer"></div>';
 	HTML += 		'<div id="btnContainer"></div>';
+	// HTML += 		'<div class="Clear"></div> <div id="next" class="btn btn-primary">Næste</div>';
+	HTML += 		'<div id="reduceBtnContainer"></div>'
 	HTML += 	'</div>';
 	HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\(b\\) i udtrykket </div>';
 	// HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\(b\\) i udtrykket \\(a = b \\cdot c\\) </div>';
@@ -444,9 +753,10 @@ function template() {
 
 
 function initQuiz() {
-	setEventListeners();
+	// setEventListeners();
 	template();
 	main();
+	setEventListeners();
 }
 
 
@@ -470,6 +780,7 @@ function giveQuestion() {
 		$('#equationContainer').html(poseEquation());
 
 		// microhint('#equationContainer', poseQuestion(), "red");
+		microhint('.explanationText', "TEST HINT", "red");
 		$( "#equationContainer" ).trigger( "click" );
 
 		// $('#equationContainer').html('$$ \\frac{Q}{C} = \\frac{ C \\cdot m \\cdot \\Delta T }{C} $$');   // <--------- VERY IMPORTANT: All "\" has to be "\\"
@@ -482,6 +793,7 @@ function giveQuestion() {
 		UserMsgBox("body", '<h4>OBS</h4> Tillykke - du er færdig med alle opgaverne!');
 	}
 	MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+	
 	// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.container-fluid')[0]]);
 }
 
@@ -695,6 +1007,7 @@ var a = ['a', 1, 'a', 2, '1'];
 console.log('onlyUnique: ' + a.filter( onlyUnique )); // returns ['a', 1, 2, '1']
 
 
+
 function makeTermArr(equation){
 	console.log('makeTermArr - equation: ' + equation);
 
@@ -745,7 +1058,7 @@ function performOperation(formula, inverseOperator, reducingTerm){
 
 	// formula = formula.replace(/ /g, '').replace(/\*/g, '');
 	formula = formula.replace(/ /g, '');
-	console.log('prepareEquation - formula: ' + formula);
+	console.log('\nperformOperation - formula: ' + formula);
 
 	var formulaArr = formula.split('=');
 	// var targetSide = (formulaArr[0].indexOf(fObj.target)!==-1)? formulaArr[0] : formulaArr[1];  // select the side of the the formula on which fObj.target is located.
@@ -1241,6 +1554,14 @@ function setEventListeners() {
         microhint($("#equationContainer"), poseQuestion(), "red");   // #micro_hint
         MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
         // MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#btnContainer')[0]]);
+
+
+        MathJax.Hub.Queue(function () {
+			console.log('mathJaxQueue - MJXc-display: ' + $('.MJXc-display').length);
+		});
+
+
+		mathJaxEquationAjuster('#equationContainer');
 	});
 
 	$( document ).on('click', ".operator", function(event){ 
@@ -1261,9 +1582,40 @@ function setEventListeners() {
 		fObj.equation = performOperation(equation, dataOperator, dataTerm);
 		console.log('setEventListeners - fObj.equation: ' + fObj.equation);
 
-		$('#equationContainer').html(poseEquation());
+		// $('#equationContainer_hidden').html(poseEquation());  // Add the equation to the hidden container
+
+		// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+
+		// MathJax.Hub.Queue(function (){
+		// 	$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+		// });
+
+		// mathJaxEquationAjuster('#equationContainer');
+
+		var redTermStr = suggestReducingTerm(fObj.equation);
+		if (redTermStr != '') {
+			$('#reduceBtnContainer').html(redTermStr);
+			$('.operator').addClass('operator_inactive').removeClass('operator');
+			$('.subHeader').addClass('subHeader_inactive').removeClass('subHeader');
+			// MathJax.Hub.Queue(function (){
+			// 	MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#reduceBtn')[0]]);
+			// });
+		}
+
+		$('#equationContainer_hidden').html(poseEquation());  // Add the equation to the hidden container
 
 		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+
+		MathJax.Hub.Queue(function (){
+			$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+			mathJaxEquationAjuster('#equationContainer');
+		});
+
+		
+	});
+
+	$( document ).on('click', ".reduceBtn", function(event){
+		
 	});
 
 	$( document ).on('click', ".microhint", function(event){
@@ -1291,10 +1643,119 @@ function setEventListeners() {
 
 }
 
-$(window).resize(function() {
+
+function detectBootstrapBreakpoints(){
+    if (typeof(bootstrapBreakpointSize) === 'undefined') {
+        console.log('detectBootstrapBreakpoints - bootstrapBreakpointSize defined.');
+        window.bootstrapBreakpointSize = null;
+        window.bootstrapcolObj = {xs:0,sm:1,md:2,lg:3};
+    }
+
+    $(document).ready(function() {
+        console.log('detectBootstrapBreakpoints - document.ready.');
+        $('body').append('<div id="bootstrapBreakpointWrapper"> <span class="visible-xs-block"> </span> <span class="visible-sm-block"></span> <span class="visible-md-block"> </span> <span class="visible-lg-block"> </span> </div>');
+        bootstrapBreakpointSize = $( "#bootstrapBreakpointWrapper>span:visible" ).prop('class').split('-')[1];
+        console.log('detectBootstrapBreakpoints - bootstrapBreakpointSize: ' + bootstrapBreakpointSize);
+    });
+
+    $(window).on('resize', function () {
+        console.log('detectBootstrapBreakpoints - window.resize.');
+        bootstrapBreakpointSize = $( "#bootstrapBreakpointWrapper>span:visible" ).prop('class').split('-')[1];
+        console.log('detectBootstrapBreakpoints - bootstrapBreakpointSize: ' + bootstrapBreakpointSize + ', typeof(bootstrapBreakpointSize): ' + typeof(bootstrapBreakpointSize));
+    });
+}
+
+
+detectBootstrapBreakpoints();  // This function call has to be here, due to the use of $(document).ready() and $(window).resize() inside the function.
+
+
+function autoLeftSpacer(){
+	console.log('autoLeftSpacer - CALLED');
 	
+	$( ".autoLeftSpacer" ).each(function( index, element ) {
+		MathJax.Hub.Queue(function () {
+			if (bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md']) {
+				var parentWidth = $(element).parent().width();
+				var nextElemWidth = $(element).next().width();
+				console.log('autoLeftSpacer - parentWidth: ' + parentWidth + ', nextElemWidth: ' + nextElemWidth);
+				$(element).width((parentWidth - nextElemWidth)/2);
+			} else {
+				$(element).width(0);
+			}
+		});
+	});
+	 
+}
+
+
+function mathJaxEquationAjuster(equationSelector) {
+	if (typeof(fontEquationSize)==='undefined') {
+		window.fontEquationSize = parseInt($(equationSelector).css('font-size').replace('px', ''));
+	}
+	MathJax.Hub.Queue(function (){
+		var fontSize, count, ajust = false;
+		
+		fontSize = parseInt($(equationSelector).css('font-size').replace('px', ''));
+		console.log('mathJaxEquationAjuster - A0 - fontSize: ' + fontSize + ', fontEquationSize: ' + fontEquationSize);
+		console.log('mathJaxEquationAjuster - MJXc-display: ' + $('.MJXc-display').length + ', mjx-char: ' + $('.mjx-char').length);  // mjx-char
+		var parentWidth = $(equationSelector).width(); // The width of #equationContainer
+		var childWidth = $(equationSelector + '> .MJXc-display > span').width();
+		console.log('mathJaxEquationAjuster - parentWidth: ' + parentWidth + ', childWidth: ' + childWidth);
+
+		if ((childWidth >= parentWidth) || (fontEquationSize < fontSize)) {
+			console.log('mathJaxEquationAjuster - A1');
+			count = 0;
+			while ((childWidth > parentWidth) && (count < 50)) {
+				
+				fontSize = parseInt($(equationSelector).css('font-size').replace('px', ''));
+				console.log('mathJaxEquationAjuster - fontSize: ' + fontSize);
+
+				$(equationSelector).css('font-size', String(fontSize-1)+'px');
+
+				parentWidth = $(equationSelector).width(); // The width of #equationContainer
+				childWidth = $(equationSelector + '> .MJXc-display > span').width();
+				console.log('mathJaxEquationAjuster - parentWidth: ' + parentWidth + ', childWidth: ' + childWidth);
+
+				++count;
+			}
+			ajust = true;
+		} else {
+			console.log('mathJaxEquationAjuster - A2');
+			count = 0;
+			while ((childWidth < parentWidth) && (fontEquationSize > fontSize) && (count < 50)) {
+				
+				fontSize = parseInt($(equationSelector).css('font-size').replace('px', ''));	
+				console.log('mathJaxEquationAjuster - fontSize: ' + fontSize + ', fontEquationSize: ' + fontEquationSize);
+
+				$(equationSelector).css('font-size', String(fontSize+1)+'px');
+
+				parentWidth = $(equationSelector).width(); // The width of #equationContainer
+				childWidth = $(equationSelector + '> .MJXc-display > span').width();
+				console.log('mathJaxEquationAjuster - parentWidth: ' + parentWidth + ', childWidth: ' + childWidth);
+
+				++count;
+			}
+		}
+	});
+}
+
+
+$(window).resize(function() {
+	// $('#leftColumn').attr('class', ((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered'));
+	// $('#btnContainer').attr('class', ((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered'));
+
+	autoLeftSpacer();
+
+	mathJaxEquationAjuster('#equationContainer');
 });
 
 $(document).ready(function() {
 	initQuiz();
+	autoLeftSpacer();
+
+
+	MathJax.Hub.Queue(function () {
+		console.log('mathJaxEquationAjuster - MJXc-display: ' + $('.MJXc-display').length + ', mjx-char: ' + $('#equationContainer .mjx-char').length);  // mjx-char
+	});
+
 });

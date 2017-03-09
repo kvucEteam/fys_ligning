@@ -35,6 +35,12 @@
 // VIGTIGT: AsciiMath pluginet ser ud til at virke i Chrome også (på trods af rød note på siden - virker det i IE?). Det kan være en mulighed (dog ikke understøttelse af strike-through tegn mv). 
 // Det er heller ikke sikkert at man dynamisk kan kalde AsciiMath på en klasse eller id - det rendere kun når siden loader. Se nedenstående inderaktive demo:
 // http://asciimath.org/
+// 
+// IMPORTANT (1): MathJax: Event when typesetting is done? Rescaling after rendering...
+// https://github.com/mathjax/mathjax-docs/wiki/Event-when-typesetting-is-done%3F-Rescaling-after-rendering...
+// 
+// IMPORTANT (2): (link from (1) above) - MathJax: signal example page:
+// http://cdn.mathjax.org/mathjax/latest/test/sample-signals.html
 
 
 ///////////////////////////////////////////////////////////////////////////// 
