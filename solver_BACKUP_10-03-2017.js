@@ -50,18 +50,20 @@
 // 
 
 
-solverClass = {
+// solverClass = {
   
-	fObj : {target: 'x', a: '13[J*s]'},   // Defines the variable (her "x")the program will try to isolate, and physical tanslations of known constants/entities like a = 13[J*s]
 
-	memObj: {
-				fObj: this.fObj,
-				stepVars: [], 
-				knownFunctions: ['asin','sin','acos','cos','atan','tan'] // <----- IMPORTANT: the inverse operator "axxx" has to be BEFORE the corresponding operator "xxx". 
-			},
+	var fObj = {target: 'x', a: '13[J*s]'};   // Defines the variable (her "x")the program will try to isolate, and physical tanslations of known constants/entities like a = 13[J*s]
 
 
-	posOfChar: function(formula, Char){
+	var memObj = {
+					fObj: fObj,
+					stepVars: [], 
+					knownFunctions: ['asin','sin','acos','cos','atan','tan'] // <----- IMPORTANT: the inverse operator "axxx" has to be BEFORE the corresponding operator "xxx". 
+				};
+
+
+	function posOfChar(formula, Char){
 		posArr = [];
 		pos = formula.indexOf(Char);
 		while (pos!==-1){
@@ -69,16 +71,16 @@ solverClass = {
 			pos = formula.indexOf(Char, pos+1);
 		}
 		return posArr;
-	},
-	// console.log('posOfChar: ' + posOfChar('012345678901234567890','0'));
+	}
+	console.log('posOfChar: ' + posOfChar('012345678901234567890','0'));
 
 
-	outerParenthesisBound: function(formula){
+	function outerParenthesisBound(formula){
 		var fArr = formula.split("");
 		// console.log('outerParenthesisBound - fArr: ' + JSON.stringify(fArr));
 		var pL = 0, pL_old = 0, pR = 0, pArr = []; 
-		var pLarr = this.posOfChar(formula, '(');
-		var pRarr = this.posOfChar(formula, ')');
+		var pLarr = posOfChar(formula, '(');
+		var pRarr = posOfChar(formula, ')');
 		if (pLarr.length == pRarr.length) {
 			for (var n in fArr) {
 				pL += (fArr[n] == '(')? 1 : 0;
@@ -93,14 +95,14 @@ solverClass = {
 		}
 
 		return pArr;
-	},
-	// console.log('outerParenthesisBound("a*b+c"): ' + JSON.stringify( outerParenthesisBound('a*b+c')) );
-	// console.log('outerParenthesisBound("(...)"): ' + JSON.stringify( outerParenthesisBound('(...)')) );
-	// console.log('outerParenthesisBound("(...)(...)"): ' + JSON.stringify( outerParenthesisBound('(...)(...)')) );
-	// console.log('outerParenthesisBound("((...))"): ' + JSON.stringify( outerParenthesisBound('((...))')) );
-	// console.log('outerParenthesisBound("((...)(...))"): ' + JSON.stringify( outerParenthesisBound('((...)(...))')) );
-	// console.log('outerParenthesisBound("((...)((...)))"): ' + JSON.stringify( outerParenthesisBound('((...)((...)))')) );
-	// console.log('outerParenthesisBound("((...)((...)))(...)"): ' + JSON.stringify( outerParenthesisBound('((...)((...)))(...)')) );
+	}
+	console.log('outerParenthesisBound("a*b+c"): ' + JSON.stringify( outerParenthesisBound('a*b+c')) );
+	console.log('outerParenthesisBound("(...)"): ' + JSON.stringify( outerParenthesisBound('(...)')) );
+	console.log('outerParenthesisBound("(...)(...)"): ' + JSON.stringify( outerParenthesisBound('(...)(...)')) );
+	console.log('outerParenthesisBound("((...))"): ' + JSON.stringify( outerParenthesisBound('((...))')) );
+	console.log('outerParenthesisBound("((...)(...))"): ' + JSON.stringify( outerParenthesisBound('((...)(...))')) );
+	console.log('outerParenthesisBound("((...)((...)))"): ' + JSON.stringify( outerParenthesisBound('((...)((...)))')) );
+	console.log('outerParenthesisBound("((...)((...)))(...)"): ' + JSON.stringify( outerParenthesisBound('((...)((...)))(...)')) );
 
 
 
@@ -122,24 +124,24 @@ solverClass = {
 	// labelOperators('1/(3*(1 + ax/b)) + c = k');
 
 
-	create_iObj: function(formula){
+	function create_iObj(formula){
 		var fArr = formula.split("");
 		var iObj = [];
 		for (var n in fArr) {
 			iObj.push({index:n, val:fArr[n]});
 			
-			if (fArr[n] == this.fObj.target) {  // This finds the position of fObj.target and stores it:
-				this.fObj.index = n;
+			if (fArr[n] == fObj.target) {  // This finds the position of fObj.target and stores it:
+				fObj.index = n;
 			}
 		}
 		// console.log('create_iObj - iObj: ' + JSON.stringify(iObj));
 
 		return iObj;
-	},
-	// console.log('create_iObj - iObj: ' + JSON.stringify(create_iObj('1/(3*(1 + ax/b)) + c = k')));
+	}
+	console.log('create_iObj - iObj: ' + JSON.stringify(create_iObj('1/(3*(1 + ax/b)) + c = k')));
 
 
-	removeParenthesis_formula: function(formula, pArr){
+	function removeParenthesis_formula(formula, pArr){
 		var parenthesis; 
 		var formula_mod = formula;
 		for (var n in pArr) {
@@ -149,10 +151,10 @@ solverClass = {
 		}
 
 		return formula_mod;
-	},
+	}
 
 
-	returnParenthesisObj_formula: function(formula, pArr, reducingTerm){
+	function returnParenthesisObj_formula(formula, pArr, reducingTerm){
 		var parenthesis; 
 		var formula_mod = formula;
 		var formula_mod_mem;
@@ -185,11 +187,11 @@ solverClass = {
 		}
 
 		return {formula_mod: formula_mod, parenthesisArr: parenthesisArr};
-	},
+	}
 
 
 
-	removeParenthesis_iObj: function(iObj, pArr){
+	function removeParenthesis_iObj(iObj, pArr){
 		var TiObj = iObj.slice();
 		var iObj_mod = [];
 		// for (var n in pArr) {
@@ -206,10 +208,10 @@ solverClass = {
 		};
 
 		return TiObj;
-	},
+	}
 
 
-	removeNumAndCharsAndOperators_iObj: function(iObj){
+	function removeNumAndCharsAndOperators_iObj(iObj){
 		var TiObj = iObj.slice();
 		for (var i = iObj.length - 1; i >= 0; i--) { 
 			if ('1234567890.,abcdefghijklmnopqrstuvwxyzæøåABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ_[]'.indexOf(iObj[i].val)!==-1) {
@@ -219,11 +221,11 @@ solverClass = {
 		console.log('removeNumAndCharsAndOperators_iObj - TiObj: ' + JSON.stringify(TiObj)); 
 
 		return TiObj;
-	},
+	}
 
 
 	// This function decides which operator (the inverse operator), and therefore which constant/therm, that need to be added/subtracted/multiplied/devided on each side.
-	reduceOperators: function(iObj_ops){  
+	function reduceOperators(iObj_ops){  
 		var iObj_ops_red = iObj_ops.slice();
 		var selected_op;
 		var opsStr = '';
@@ -282,16 +284,16 @@ solverClass = {
 
 
 		return selected_op;
-	},
+	}
 
 
 	// The purpose of this function is to wrap a parenthesis around all memObj.knownFunctions. The reason for this is that when "sin(x)" is wrapped in a 
 	// parenthesis, like so "(sin(x))", then it will be treated like a constant "c" by all the other algorithms in the program. If the function is not wrapped, then
 	// "sin" and "(x)" will be treated as two separate entities. 
-	addParenthesisAroundFunctions: function(targetSide){
-		var pArr = this.outerParenthesisBound(targetSide);
+	function addParenthesisAroundFunctions(targetSide){
+		var pArr = outerParenthesisBound(targetSide);
 		console.log('addParenthesisAroundFunctions - pArr: ' + JSON.stringify(pArr));
-		var f = this.memObj.knownFunctions;
+		var f = memObj.knownFunctions;
 		var fl, fc, TtargetSide;
 		var newTargetSide = '';
 		var pos = 0;
@@ -319,11 +321,11 @@ solverClass = {
 		console.log('addParenthesisAroundFunctions - newTargetSide 2: ' + newTargetSide);
 
 		return newTargetSide;
-	},
-	// console.log('==================  XXX - 0 - XXX  ==================');
-	// console.log('addParenthesisAroundFunctions("sin(x)+asin(x)+cos(x)+acos(x)+tan(x)+atan(x)+k"): ' + addParenthesisAroundFunctions("sin(x)+asin(x)+cos(x)+acos(x)+tan(x)+atan(x)+k"));
-	// console.log('==================  XXX - 1 - XXX  ==================');
-	// console.log('addParenthesisAroundFunctions("(sin(x))+(asin(x))+(cos(x))+k"): ' + addParenthesisAroundFunctions("(sin(x))+(asin(x))+(cos(x))+k")); // Check that eg (sin(x)) is ignored by the algorithm, and does not become ((sin(x))).  
+	}
+	console.log('==================  XXX - 0 - XXX  ==================');
+	console.log('addParenthesisAroundFunctions("sin(x)+asin(x)+cos(x)+acos(x)+tan(x)+atan(x)+k"): ' + addParenthesisAroundFunctions("sin(x)+asin(x)+cos(x)+acos(x)+tan(x)+atan(x)+k"));
+	console.log('==================  XXX - 1 - XXX  ==================');
+	console.log('addParenthesisAroundFunctions("(sin(x))+(asin(x))+(cos(x))+k"): ' + addParenthesisAroundFunctions("(sin(x))+(asin(x))+(cos(x))+k")); // Check that eg (sin(x)) is ignored by the algorithm, and does not become ((sin(x))).  
 
 	// 0123456789012345678901234567890123456789012345678901234567890
 	// |         |         |         |         |         |         |
@@ -342,18 +344,18 @@ solverClass = {
 	//
 	// When showing the LaTex/MathJax result of the equation, then the intension is NOT to show the parenthesis. This
 	// way the equation will appaear as it originally is - without parenthesis.
-	addParenthesisAroundNegativeTerms: function(targetSide){
+	function addParenthesisAroundNegativeTerms(targetSide){
 		var formulaArr = targetSide.split("");
 		var formulaArrKeys = Object.keys(formulaArr);  // <---- All elements in formulaArrKeys are of type string, due to comparison with (# 6 #).
 		console.log('addParenthesisAroundNegativeTerms - typeof(formulaArrKeys[0]): ' + typeof(formulaArrKeys[0]));
 		console.log('addParenthesisAroundNegativeTerms - formulaArrKeys: ' + formulaArrKeys);
 		var newFormulaArr, pos, posRightParenthesis, newTargetSide_start, newTargetSide;
-		var pArr = this.outerParenthesisBound(targetSide);
+		var pArr = outerParenthesisBound(targetSide);
 		console.log('addParenthesisAroundNegativeTerms - findNextOperator - pArr: ' + JSON.stringify(pArr));
-		var pArrSet = this.helper_makeSetFrom_pArr(pArr);
+		var pArrSet = helper_makeSetFrom_pArr(pArr);
 		console.log('addParenthesisAroundNegativeTerms - pArrSet: ' + pArrSet);
-		var pArrLookup = this.helper_pArr_lookup(pArr);
-		var excludedSet = this.helper_excludedSet(formulaArrKeys, pArrSet);
+		var pArrLookup = helper_pArr_lookup(pArr);
+		var excludedSet = helper_excludedSet(formulaArrKeys, pArrSet);
 		console.log('addParenthesisAroundNegativeTerms - excludedSet: ' + excludedSet);
 		var excludedSetStr = '_'+excludedSet.join('_')+'_';
 		var l = formulaArr.length;
@@ -409,29 +411,29 @@ solverClass = {
 		console.log('addParenthesisAroundNegativeTerms - newTargetSide 2: ' + newTargetSide);
 
 		return newTargetSide;
-	},
-	// console.log('==================  XXX 0 XXX  ==================');
-	// console.log('addParenthesisAroundNegativeTerms("-a*x") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-a*x")));
-	// console.log('==================  XXX 1 XXX  ==================');
-	// console.log('addParenthesisAroundNegativeTerms("-(a*x)") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-(a*x)")));
-	// console.log('==================  XXX 2 XXX  ==================');
-	// console.log('addParenthesisAroundNegativeTerms("-(a*x)+(b*c)-(d*e)") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-(a*x)+-(b*c)*-(d*e)")));
-	// console.log('==================  XXX 3 XXX  ==================');
-	// console.log('addParenthesisAroundNegativeTerms("-sin(x)*a") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-sin(x)*a")));
+	}
+	console.log('==================  XXX 0 XXX  ==================');
+	console.log('addParenthesisAroundNegativeTerms("-a*x") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-a*x")));
+	console.log('==================  XXX 1 XXX  ==================');
+	console.log('addParenthesisAroundNegativeTerms("-(a*x)") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-(a*x)")));
+	console.log('==================  XXX 2 XXX  ==================');
+	console.log('addParenthesisAroundNegativeTerms("-(a*x)+(b*c)-(d*e)") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-(a*x)+-(b*c)*-(d*e)")));
+	console.log('==================  XXX 3 XXX  ==================');
+	console.log('addParenthesisAroundNegativeTerms("-sin(x)*a") : ' + JSON.stringify(addParenthesisAroundNegativeTerms("-sin(x)*a")));
 
 
-	helper_pArr_lookup: function(pArr){
+	function helper_pArr_lookup(pArr){
 		pArrLookup = {};
 		for (var n in pArr) {
 			pArrLookup[pArr[n].left] = pArr[n].right;
 		}
 
 		return pArrLookup;
-	},
-	// console.log('pArrLookup("[{"left":1,"right":5}, {"left":7,"right":9}]") : ' + JSON.stringify( helper_pArr_lookup( [{"left":1,"right":5}, {"left":7,"right":9}] )));
+	}
+	console.log('pArrLookup("[{"left":1,"right":5}, {"left":7,"right":9}]") : ' + JSON.stringify( helper_pArr_lookup( [{"left":1,"right":5}, {"left":7,"right":9}] )));
 
 
-	helper_makeSetFrom_pArr: function(pArr){
+	function helper_makeSetFrom_pArr(pArr){
 		var set = [];
 		for (var n in pArr){
 			if (typeof(pArr[n] !== 'undefined')){
@@ -441,11 +443,11 @@ solverClass = {
 			}
 		}
 		return set;
-	},
-	// console.log('helper_makeSetFrom_pArr("[{"left":1,"right":5}, {"left":7,"right":9}]") : ' + JSON.stringify( helper_makeSetFrom_pArr( [{"left":1,"right":5}, {"left":7,"right":9}] )));
+	}
+	console.log('helper_makeSetFrom_pArr("[{"left":1,"right":5}, {"left":7,"right":9}]") : ' + JSON.stringify( helper_makeSetFrom_pArr( [{"left":1,"right":5}, {"left":7,"right":9}] )));
 
 
-	helper_excludedSet: function(set, subSet){
+	function helper_excludedSet(set, subSet){
 		
 		var Tset = set.slice();
 
@@ -454,42 +456,42 @@ solverClass = {
 		} );
 
 		return Tset;
-	},
-	// console.log('helper_excludedSet([0,1,2,3,4,5,6,7,8,9], [2,3,4,7,8]): ' + JSON.stringify(helper_excludedSet([0,1,2,3,4,5,6,7,8,9], [2,3,4,7,8])));
+	}
+	console.log('helper_excludedSet([0,1,2,3,4,5,6,7,8,9], [2,3,4,7,8]): ' + JSON.stringify(helper_excludedSet([0,1,2,3,4,5,6,7,8,9], [2,3,4,7,8])));
 
 
-	removeOuterParenthesis: function() {
+	function removeOuterParenthesis() {
 
-	},
+	}
 
 
-	findNextOperator: function(formula) {
+	function findNextOperator(formula) {
 		// formula = formula.replace(/ /g, '').replace(/\*/g, '');
 		formula = formula.replace(/ /g, '');
 		console.log('findNextOperator - formula: ' + formula);
 
 		var formulaArr = formula.split('=');
 		// var targetSide = (formulaArr[0].indexOf(fObj.target)!==-1)? formulaArr[0] : formulaArr[1];  // select the side of the the formula on which fObj.target is located.
-		if (formulaArr[0].indexOf(this.fObj.target)!==-1) {
-			var targetSide = this.removeOuterParenthesisAroundNonSpecialTerms(formulaArr[0]);
-			var nonTargetSide = this.removeOuterParenthesisAroundNonSpecialTerms(formulaArr[1]);
+		if (formulaArr[0].indexOf(fObj.target)!==-1) {
+			var targetSide = removeOuterParenthesisAroundNonSpecialTerms(formulaArr[0]);
+			var nonTargetSide = removeOuterParenthesisAroundNonSpecialTerms(formulaArr[1]);
 			var varSide = 'left';
 		} else {
-			var targetSide = this.removeOuterParenthesisAroundNonSpecialTerms(formulaArr[1]);
-			var nonTargetSide = this.removeOuterParenthesisAroundNonSpecialTerms(formulaArr[0]);
+			var targetSide = removeOuterParenthesisAroundNonSpecialTerms(formulaArr[1]);
+			var nonTargetSide = removeOuterParenthesisAroundNonSpecialTerms(formulaArr[0]);
 			var varSide = 'right';
 		}
 		console.log('findNextOperator - targetSide 1: ' + targetSide);
 
-		if (targetSide != this.fObj.target) {
+		if (targetSide != fObj.target) {
 
-			targetSide = this.addParenthesisAroundNegativeTerms(targetSide);   // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
+			targetSide = addParenthesisAroundNegativeTerms(targetSide);   // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
 			console.log('findNextOperator - targetSide 2: ' + targetSide);
 
-			targetSide = this.addParenthesisAroundFunctions(targetSide);      // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
+			targetSide = addParenthesisAroundFunctions(targetSide);      // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
 			console.log('findNextOperator - targetSide 2: ' + targetSide);
 
-			var iObj = this.create_iObj(targetSide);
+			var iObj = create_iObj(targetSide);
 			console.log('findNextOperator - iObj: ' + JSON.stringify(iObj));
 
 			// var opsStr = targetSide.replace(/(\w|\d|\.|\,)/g, '');  //  <-----  VIGTIGT: Dette skal ikke bruges - se strategi forneden!!!
@@ -507,32 +509,32 @@ solverClass = {
 			//		(*) Hvis flere operatore er tilbage, f.eks '/' og '-', så fjernes '/' så '-' står tilbage.  
 
 			// Remove parenthesis
-			var pArr = this.outerParenthesisBound(targetSide);
+			var pArr = outerParenthesisBound(targetSide);
 			console.log('findNextOperator - pArr: ' + JSON.stringify(pArr));
 
-			var TtargetSide = this.removeParenthesis_formula(targetSide, pArr);      // <-------- (#-1-#) IMPORTANT : targetSide needs to be similar to iObj - see (#-2-#) below. NOTE: This is only used as a sanity-check
+			var TtargetSide = removeParenthesis_formula(targetSide, pArr);      // <-------- (#-1-#) IMPORTANT : targetSide needs to be similar to iObj - see (#-2-#) below. NOTE: This is only used as a sanity-check
 			console.log('findNextOperator - TtargetSide: ' + TtargetSide);    
 
-			iObj_red = this.removeParenthesis_iObj(iObj, pArr);							// <-------- (#-2-#) IMPORTANT : iObj needs to be similar to targetSide - see (#-1-#) above.
+			iObj_red = removeParenthesis_iObj(iObj, pArr);							// <-------- (#-2-#) IMPORTANT : iObj needs to be similar to targetSide - see (#-1-#) above.
 			console.log('findNextOperator - iObj_red: ' + JSON.stringify(iObj_red));
 
-			iObj_ops = this.removeNumAndCharsAndOperators_iObj(iObj_red);				// Array of operators "+" and "-", which might be empty if "*" and "/" are the only operators used.
-			console.log('findNextOperator - iObj_ops: ' + JSON.stringify(iObj_ops) + ', fObj: ' + JSON.stringify(this.fObj));
+			iObj_ops = removeNumAndCharsAndOperators_iObj(iObj_red);				// Array of operators "+" and "-", which might be empty if "*" and "/" are the only operators used.
+			console.log('findNextOperator - iObj_ops: ' + JSON.stringify(iObj_ops) + ', fObj: ' + JSON.stringify(fObj));
 
-			var selected_op = this.reduceOperators(iObj_ops); 
+			var selected_op = reduceOperators(iObj_ops); 
 			console.log('findNextOperator - selected_op: ' + JSON.stringify(selected_op));
 
 			console.log('findNextOperator - iObj_ops 2: ' + JSON.stringify(iObj_ops));
-			var reducingTerm = this.findReducingTerm(selected_op, iObj, iObj_ops, targetSide);
+			var reducingTerm = findReducingTerm(selected_op, iObj, iObj_ops, targetSide);
 			console.log('findNextOperator - reducingTerm: ' + reducingTerm);
 
-			var inverseOperator = this.findInverseOperator(selected_op, reducingTerm, targetSide);
+			var inverseOperator = findInverseOperator(selected_op, reducingTerm, targetSide);
 			console.log('findNextOperator - inverseOperator: ' + inverseOperator);
 
-			var targetSide_red = this.reduceSide(targetSide, inverseOperator, reducingTerm, TtargetSide); // The reduced targetSide, eg. the inverseOperator and reducingTerm "operating" on the targetSide.
+			var targetSide_red = reduceSide(targetSide, inverseOperator, reducingTerm, TtargetSide); // The reduced targetSide, eg. the inverseOperator and reducingTerm "operating" on the targetSide.
 			console.log('findNextOperator - targetSide_red: ' + targetSide_red);
 
-			nonTargetSide_red = this.addReducingTermOnNonTargetSide(nonTargetSide, inverseOperator, reducingTerm);  // The reduced targetSide, eg. the inverseOperator and reducingTerm "operating" on the targetSide.
+			nonTargetSide_red = addReducingTermOnNonTargetSide(nonTargetSide, inverseOperator, reducingTerm);  // The reduced targetSide, eg. the inverseOperator and reducingTerm "operating" on the targetSide.
 			console.log('findNextOperator - nonTargetSide_red: ' + nonTargetSide_red);
 
 			var reducableFormula = (varSide == 'left')? targetSide_red+'='+nonTargetSide_red : nonTargetSide_red+'='+targetSide_red;
@@ -540,19 +542,19 @@ solverClass = {
 
 			// prepareNonTargetSide(targetSide_red);
 
-			var termArr = this.identifyInvolvedTerms(iObj, iObj_ops);
+			var termArr = identifyInvolvedTerms(iObj, iObj_ops);
 			console.log('findNextOperator - termArr: ' + JSON.stringify(termArr));
 
-			var reducedTargetSide = this.reduceTargetSide(termArr, iObj_ops, inverseOperator, reducingTerm);   // <------------------  GAMMEL MED FEJL
-			// var reducedTargetSide = this.reduceTargetSide_2(targetSide, inverseOperator, reducingTerm);   // <------------------  NY MED FEJL
+			var reducedTargetSide = reduceTargetSide(termArr, iObj_ops, inverseOperator, reducingTerm);   // <------------------  GAMMEL MED FEJL
+			// var reducedTargetSide = reduceTargetSide_2(targetSide, inverseOperator, reducingTerm);   // <------------------  NY MED FEJL
 			console.log('findNextOperator - reducedTargetSide: ' + reducedTargetSide);
 
 			var reducedFormula = (varSide == 'left')? reducedTargetSide+'='+nonTargetSide_red : nonTargetSide_red+'='+reducedTargetSide;
 			console.log('findNextOperator - reducedFormula: ' + reducedFormula);
 
-			this.reduceTargetSide_2(targetSide, inverseOperator, reducingTerm);
+			reduceTargetSide_2(targetSide, inverseOperator, reducingTerm);
 
-			this.memObj.stepVars.push({formula: formula, formulaArr: formulaArr, targetSide: targetSide, iObj: iObj, iObj_ops: iObj_ops, selected_op: selected_op, inverseOperator: inverseOperator, reducableFormula: reducableFormula, reducedFormula: reducedFormula}); // Save all variables.
+			memObj.stepVars.push({formula: formula, formulaArr: formulaArr, targetSide: targetSide, iObj: iObj, iObj_ops: iObj_ops, selected_op: selected_op, inverseOperator: inverseOperator, reducableFormula: reducableFormula, reducedFormula: reducedFormula}); // Save all variables.
 
 			return true;  // fObj.target has NOT been isolated!
 
@@ -560,152 +562,152 @@ solverClass = {
 
 			return false;  // fObj.target has been isolated!
 		}
-	},
+	}
+	console.log('\n================================================================================\n ');
+	findNextOperator('sin(a)*x = k');					// <-------------   NOTE: Fra d. 14/2-2017 bliver hele ord opfattet som een variabel ---> lav oversættelselisste/lookup til inverse funktioner.
+	console.log('\n================================================================================\n ');
+	findNextOperator('-a*x = k');					// <-------------   FEJL:  "" (ingenting) bliver forslået som reducingTerm. (#-5-#)  <------ OK NU! (#-5-#) 
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/x = k');					
+	console.log('\n================================================================================\n ');
+	findNextOperator('x/a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*x = k');					
+	console.log('\n================================================================================\n ');
+	findNextOperator('x*a = k');					
+	console.log('\n================================================================================\n ');
+	findNextOperator('a+x = k');					
+	console.log('\n================================================================================\n ');
+	findNextOperator('x+a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a-x = k');					
+	console.log('\n================================================================================\n ');
+	findNextOperator('x-a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b + x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/b + x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b - x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/b - x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b*c + x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/b/c + x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b*c - x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/b/c - x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b*x - c = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/b/x - c = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b*c*x - d = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/b/c/x - d = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b*c*x*e*f - d = k');		   // <-------------   FEJL:  e*f bliver forslået som reducingTerm. (#-4-#)   <------ OK NU! (#-4-#)
+	console.log('\n================================================================================\n ');
+	findNextOperator('a/b/c/x/e/f - d = k');           // <-------------   FEJL:  e/f bliver forslået som reducingTerm. (#-4-#)   <------ OK NU! (#-4-#)
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b*c*x*e*f = k');		 
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*b*c*x = k');		 
+	console.log('\n================================================================================\n ');
+	findNextOperator('x/(3*(1 + a/b))= k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('1/(3*(1 + a*x/b))= k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('1/(3*(1 + a*x/b)) + c = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('1/(3*(1 + a/b)) + x = k');       // <-------------   FEJL:  (3*(1 + a/b)) bliver forslået som reducingTerm. (#-3-#) <------ OK NU! (#-3-#)
+	console.log('\n================================================================================\n ');
+	findNextOperator('1/(3*(1 + a*x/b))*((a+b)*(3*(1+c))) + c = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*(1 + a*x/b)= k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*(1 + a*x/b)/c= k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*(1 + a*x/b)/c + h - j = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3 + (1 + a*x/b)/c + h - j = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x/c = k + 2');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x*c = k + 2');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x/c = k * 2');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x*c = k * 2');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x+c = k * 2');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x-c = k * 2');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x+c = 1');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x-c = 1');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x*c = 1');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x/c = 1');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x+c = 0');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x-c = 0');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x*c = 0');
+	console.log('\n================================================================================\n ');
+	findNextOperator('3*x/c = 0');
 	// console.log('\n================================================================================\n ');
-	// findNextOperator('sin(a)*x = k');					// <-------------   NOTE: Fra d. 14/2-2017 bliver hele ord opfattet som een variabel ---> lav oversættelselisste/lookup til inverse funktioner.
+	// findNextOperator('(a*x+c-c)/a = (k-c)/a');      // <------------------------  NOTE: her er "x" isoleret hvis man blot "reducere" 2 gange på venstresiden (#-6-#)
+	console.log('\n================================================================================\n ');
+	findNextOperator('a*x+c-c = k-c');      
+	console.log('\n================================================================================\n ');
+	findNextOperator('x = k*c/3');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a+x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('a-x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('-x+a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('x+a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('b+x+a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('-a+x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('-a-x = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('x-a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('-x-a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('b-a+x = k');
 	// console.log('\n================================================================================\n ');
-	// findNextOperator('-a*x = k');					// <-------------   FEJL:  "" (ingenting) bliver forslået som reducingTerm. (#-5-#)  <------ OK NU! (#-5-#) 
+	// findNextOperator('a*x = k');
 	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/x = k');					
+	// findNextOperator('x*a = k');
+	console.log('\n================================================================================\n ');
+	findNextOperator('1/(x+a)+2/b + c = k'); 
 	// console.log('\n================================================================================\n ');
-	// findNextOperator('x/a = k');
+	// findNextOperator('1/(x+a)+2/b = k - c'); 
 	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*x = k');					
+	// findNextOperator('1/(x+a)+2/b=k-c-2/b'); 
 	// console.log('\n================================================================================\n ');
-	// findNextOperator('x*a = k');					
+	// findNextOperator('2/b + x = k - c'); 
 	// console.log('\n================================================================================\n ');
-	// findNextOperator('a+x = k');					
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('x+a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a-x = k');					
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('x-a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b + x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/b + x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b - x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/b - x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b*c + x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/b/c + x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b*c - x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/b/c - x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b*x - c = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/b/x - c = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b*c*x - d = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/b/c/x - d = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b*c*x*e*f - d = k');		   // <-------------   FEJL:  e*f bliver forslået som reducingTerm. (#-4-#)   <------ OK NU! (#-4-#)
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a/b/c/x/e/f - d = k');           // <-------------   FEJL:  e/f bliver forslået som reducingTerm. (#-4-#)   <------ OK NU! (#-4-#)
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b*c*x*e*f = k');		 
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*b*c*x = k');		 
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('x/(3*(1 + a/b))= k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('1/(3*(1 + a*x/b))= k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('1/(3*(1 + a*x/b)) + c = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('1/(3*(1 + a/b)) + x = k');       // <-------------   FEJL:  (3*(1 + a/b)) bliver forslået som reducingTerm. (#-3-#) <------ OK NU! (#-3-#)
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('1/(3*(1 + a*x/b))*((a+b)*(3*(1+c))) + c = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*(1 + a*x/b)= k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*(1 + a*x/b)/c= k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*(1 + a*x/b)/c + h - j = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3 + (1 + a*x/b)/c + h - j = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x/c = k + 2');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x*c = k + 2');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x/c = k * 2');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x*c = k * 2');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x+c = k * 2');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x-c = k * 2');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x+c = 1');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x-c = 1');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x*c = 1');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x/c = 1');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x+c = 0');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x-c = 0');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x*c = 0');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('3*x/c = 0');
-	// // console.log('\n================================================================================\n ');
-	// // findNextOperator('(a*x+c-c)/a = (k-c)/a');      // <------------------------  NOTE: her er "x" isoleret hvis man blot "reducere" 2 gange på venstresiden (#-6-#)
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a*x+c-c = k-c');      
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('x = k*c/3');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a+x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('a-x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('-x+a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('x+a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('b+x+a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('-a+x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('-a-x = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('x-a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('-x-a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('b-a+x = k');
-	// // console.log('\n================================================================================\n ');
-	// // findNextOperator('a*x = k');
-	// // console.log('\n================================================================================\n ');
-	// // findNextOperator('x*a = k');
-	// console.log('\n================================================================================\n ');
-	// findNextOperator('1/(x+a)+2/b + c = k'); 
-	// // console.log('\n================================================================================\n ');
-	// // findNextOperator('1/(x+a)+2/b = k - c'); 
-	// // console.log('\n================================================================================\n ');
-	// // findNextOperator('1/(x+a)+2/b=k-c-2/b'); 
-	// // console.log('\n================================================================================\n ');
-	// // findNextOperator('2/b + x = k - c'); 
-	// // console.log('\n================================================================================\n ');
-	// // findNextOperator('a+x = k'); 
+	// findNextOperator('a+x = k'); 
 
 
-	isolateTarget: function(formula){
+	function isolateTarget(formula){
 
 		console.log('isolateTarget - formula: ' + formula);
 
-		this.memObj.stepVars = [];
+		memObj.stepVars = [];
 
 		var count = 0;
 		var count2 = 0
@@ -720,9 +722,9 @@ solverClass = {
 		++count;
 		++count2;
 
-		while ((this.findNextOperator(formula)) && (count < 25)) {
-			formula = this.memObj.stepVars[this.memObj.stepVars.length-1].reducedFormula;
-			formula_red = this.memObj.stepVars[this.memObj.stepVars.length-1].reducableFormula;
+		while ((findNextOperator(formula)) && (count < 25)) {
+			formula = memObj.stepVars[memObj.stepVars.length-1].reducedFormula;
+			formula_red = memObj.stepVars[memObj.stepVars.length-1].reducableFormula;
 
 			formulaSteps += '('+count+')  '+((count<10)?' ':'')+formula+'\n';
 			formulaReductionSteps += '('+count+')  '+((count<10)?' ':'')+formula_red+'\n';
@@ -739,13 +741,13 @@ solverClass = {
 		console.log('isolateTarget - combinedSteps: ' + combinedSteps);
 
 		alert('formulaSteps: ' + formulaSteps + '\ncombinedSteps: ' + combinedSteps);
-	},
-	// console.log('\n================================================================================\n ');
+	}
+	console.log('\n================================================================================\n ');
 	// isolateTarget('-b+x-a = k');
 	// isolateTarget('-b-x-a = k');   // <----- FEJL - 23/2 kl 14:35
 	// isolateTarget('b*x*a = k');            // <-------  NOTE: FIX at x = k/a/b   <==>  k/(a*b)
 	// isolateTarget('1/x + c = k');
-	// isolateTarget('1/(x+a) + c = k'); 
+	isolateTarget('1/(x+a) + c = k'); 
 
 	// isolateTarget('a-x = k'); // <----- FEJL - 23/2 kl 14:35
 
@@ -757,7 +759,7 @@ solverClass = {
 
 	// This function perform the action of finding 'b' (aka 'reducing term') for use in the reduceingStep: 
 	//		ax + b = y  <==>  ax + b - b = y - b
-	findReducingTerm: function(selected_op, iObj, iObj_ops, targetSide){
+	function findReducingTerm(selected_op, iObj, iObj_ops, targetSide){
 		
 		var indexStr = '_'; 
 		var opsStr = '';
@@ -813,26 +815,26 @@ solverClass = {
 
 		if (selected_op.val == '/'){  // Always select the denominator for the '/' operator - also when fObj.target is located inside it:
 			console.log('findReducingTerm - A1');
-			reducingTerm = this.returnElement(termArr, selected_op.index, false);
+			reducingTerm = returnElement(termArr, selected_op.index, false);
 		}
 
 		if ((selected_op.val == '*') || (selected_op.val == '+') || (selected_op.val == '-')){ 
 			console.log('findReducingTerm - A2');
-			console.log('findReducingTerm - fObj.index: ' + typeof(this.fObj.index) + ', selected_op.index: ' + typeof(selected_op.index));
-			if (parseInt(this.fObj.index) < parseInt(selected_op.index)){  // If the fObj.target is located before the selected operator, then select the term after the operator:
+			console.log('findReducingTerm - fObj.index: ' + typeof(fObj.index) + ', selected_op.index: ' + typeof(selected_op.index));
+			if (parseInt(fObj.index) < parseInt(selected_op.index)){  // If the fObj.target is located before the selected operator, then select the term after the operator:
 				console.log('findReducingTerm - A3');
-				reducingTerm = this.returnElement(termArr, selected_op.index, false);
+				reducingTerm = returnElement(termArr, selected_op.index, false);
 			} else {							 // If the fObj.target is located after the selected operator, then select the term before the operator:
 				console.log('findReducingTerm - A4');
-				reducingTerm = this.returnElement(termArr, selected_op.index, true);
+				reducingTerm = returnElement(termArr, selected_op.index, true);
 			}
 		}
 
 		return reducingTerm;
-	},
+	}
 
 
-	returnElement: function(Tarray, length, termBefore) {
+	function returnElement(Tarray, length, termBefore) {
 		var sum = 0;
 		for (var n in Tarray){
 			sum += Tarray[n].length+1;
@@ -848,11 +850,11 @@ solverClass = {
 				}
 			}
 		}
-	},
+	}
 
 
 
-	findInverseOperator: function(selected_op, reducingTerm, targetSide){  
+	function findInverseOperator(selected_op, reducingTerm, targetSide){  
 		var inverseOperator, cOp;
 		var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};
 		var strBefore = targetSide.substring(0, selected_op.index);
@@ -884,16 +886,16 @@ solverClass = {
 		console.log('findInverseOperator - inverseOperator: ' + inverseOperator);
 
 		return inverseOperator;
-	},
+	}
 
 
 	// This function perform the action: 
 	//		ax + b = y  <==>  ax + b - b = y - b
-	addReducingTermOnNonTargetSide: function(nonTargetSide, inverseOperator, reducingTerm){
-		var pArr = this.outerParenthesisBound(nonTargetSide);
+	function addReducingTermOnNonTargetSide(nonTargetSide, inverseOperator, reducingTerm){
+		var pArr = outerParenthesisBound(nonTargetSide);
 		console.log('addReducingTermOnNonTargetSide - pArr: ' + JSON.stringify(pArr));
 
-		var TtargetSide = this.removeParenthesis_formula(nonTargetSide, pArr);      // <-------- (#-1-#) IMPORTANT : targetSide needs to be similar to iObj - see (#-2-#) below. NOTE: This is only used as a sanity-check
+		var TtargetSide = removeParenthesis_formula(nonTargetSide, pArr);      // <-------- (#-1-#) IMPORTANT : targetSide needs to be similar to iObj - see (#-2-#) below. NOTE: This is only used as a sanity-check
 		console.log('addReducingTermOnNonTargetSide - TtargetSide: ' + TtargetSide); 
 
 
@@ -926,16 +928,16 @@ solverClass = {
 
 		// console.log('addReducingTermOnNonTargetSide - nonTargetSide: ' + nonTargetSide); 
 
-		equationSide = this.reduceSide(nonTargetSide, inverseOperator, reducingTerm, TtargetSide);
+		equationSide = reduceSide(nonTargetSide, inverseOperator, reducingTerm, TtargetSide);
 		console.log('addReducingTermOnNonTargetSide - equationSide: ' + equationSide); 
 
 		return equationSide;
-	},
+	}
 
 
 	// This function perform the action on ONE of the equation sides (right or left, determined by the string "equationSide"): 
 	//		ax + b = y  <==>  ax + b - b = y - b
-	reduceSide: function(equationSide, inverseOperator, reducingTerm, TtargetSide){
+	function reduceSide(equationSide, inverseOperator, reducingTerm, TtargetSide){
 		
 		if ((TtargetSide.indexOf('+')!==-1) || (TtargetSide.indexOf('-')!==-1)) {
 			if ((inverseOperator == '*') || (inverseOperator == '/')) {
@@ -966,16 +968,16 @@ solverClass = {
 		}
 
 		return equationSide;
-	},
+	}
 
 
 
-	removeOuterParenthesisAroundNonSpecialTerms: function(equationSide) {
+	function removeOuterParenthesisAroundNonSpecialTerms(equationSide) {
 
-		var pArr = this.outerParenthesisBound(equationSide);
+		var pArr = outerParenthesisBound(equationSide);
 		console.log('removeOuterParenthesisAroundNonSpecialTerms - pArr: ' + JSON.stringify(pArr));
 
-		var TequationSide = this.removeParenthesis_formula(equationSide, pArr);    
+		var TequationSide = removeParenthesis_formula(equationSide, pArr);    
 		console.log('removeOuterParenthesisAroundNonSpecialTerms - TtargetSide: ' + TequationSide); 
 
 		// if ((equationSide.indexOf('(-')!==0) && (TequationSide.length==0)) {
@@ -984,32 +986,32 @@ solverClass = {
 		} else {
 			return equationSide;
 		}
-	},
-	// console.log('removeOuterParenthesisAroundNonSpecialTerms("a*(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("a*(b+x)"));
-	// console.log('removeOuterParenthesisAroundNonSpecialTerms("c(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("c(b+x)"));
-	// console.log('removeOuterParenthesisAroundNonSpecialTerms("(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("(b+x)"));
-	// console.log('removeOuterParenthesisAroundNonSpecialTerms("(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("(-b+x)"));  // <------ MEGET VIGIGT: Her er et hul i strategien om at negative størrelser angivet med (-a). OK nu, idet (-b+x) --> -b+x --> (-b)+x senere i programmet.
+	}
+	console.log('removeOuterParenthesisAroundNonSpecialTerms("a*(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("a*(b+x)"));
+	console.log('removeOuterParenthesisAroundNonSpecialTerms("c(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("c(b+x)"));
+	console.log('removeOuterParenthesisAroundNonSpecialTerms("(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("(b+x)"));
+	console.log('removeOuterParenthesisAroundNonSpecialTerms("(b+x)"): ' + removeOuterParenthesisAroundNonSpecialTerms("(-b+x)"));  // <------ MEGET VIGIGT: Her er et hul i strategien om at negative størrelser angivet med (-a). OK nu, idet (-b+x) --> -b+x --> (-b)+x senere i programmet.
 
 
 	// ======================
 	// 		NOT IN USE:       Denne funktion er muligvis overflødig, idet -a*x = k  <==>  (-a)*x/(-a) = k/(-a)  _og_  -a+x = k  <==>  (-a)+x-(-a) = k-(-a)
 	// ======================
-	removeOuterParenthesisAroundNegativeTerm: function(term) {
+	function removeOuterParenthesisAroundNegativeTerm(term) {
 		if (term.indexOf('(-') === 0){
 			return term.substring(1, term.length-1);
 		} else {
 			return term;
 		}
-	},
-	// console.log('removeOuterParenthesisAroundNegativeTerm("a*(-3)"): ' + removeOuterParenthesisAroundNegativeTerm("a*(-3)"));
-	// console.log('removeOuterParenthesisAroundNegativeTerm("a*(-3)"): ' + removeOuterParenthesisAroundNegativeTerm("1(-3)"));
-	// console.log('removeOuterParenthesisAroundNegativeTerm("a*(-3)"): ' + removeOuterParenthesisAroundNegativeTerm("(-3)"));
+	}
+	console.log('removeOuterParenthesisAroundNegativeTerm("a*(-3)"): ' + removeOuterParenthesisAroundNegativeTerm("a*(-3)"));
+	console.log('removeOuterParenthesisAroundNegativeTerm("a*(-3)"): ' + removeOuterParenthesisAroundNegativeTerm("1(-3)"));
+	console.log('removeOuterParenthesisAroundNegativeTerm("a*(-3)"): ' + removeOuterParenthesisAroundNegativeTerm("(-3)"));
 
 
 
 	// This function perform the action: 
 	//		ax + b - b = y - b  <==>  ax = y - b
-	reduceTargetSide: function(termArr, iObj_ops, inverseOperator, reducingTerm){
+	function reduceTargetSide(termArr, iObj_ops, inverseOperator, reducingTerm){
 		var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};	
 
 		console.log('reduceTargetSide - termArr 1: ' + JSON.stringify(termArr) + ', iObj_ops 1: ' + JSON.stringify(iObj_ops) + ', inverseOperator 1: ' + inverseOperator + ', reducingTerm 1: ' + reducingTerm);
@@ -1129,7 +1131,7 @@ solverClass = {
 		console.log('reduceTargetSide - reducedEquationSide: ' + reducedEquationSide);
 
 		return reducedEquationSide;
-	},
+	} 
 
 
 	// function returnSurroundingOperators(equationSide, reducingTerm) {
@@ -1153,15 +1155,15 @@ solverClass = {
 
 	// This function perform the action: 
 	//		ax + b - b = y - b  <==>  ax = y - b
-	reduceTargetSide_2: function(equationSide, inverseOperator, reducingTerm){
+	function reduceTargetSide_2(equationSide, inverseOperator, reducingTerm){
 		var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};	
 
 		console.log('reduceTargetSide_2 - equationSide 1: ' + equationSide + ', inverseOperator 1: ' + inverseOperator + ', reducingTerm 1: ' + reducingTerm);
 
-		var pArr = this.outerParenthesisBound(equationSide);
+		var pArr = outerParenthesisBound(equationSide);
 		console.log('findNextOperator - pArr: ' + JSON.stringify(pArr));
 
-		var pObj = this.returnParenthesisObj_formula(equationSide, pArr, reducingTerm);   
+		var pObj = returnParenthesisObj_formula(equationSide, pArr, reducingTerm);   
 		console.log('reduceTargetSide_2 - pObj: ' + JSON.stringify(pObj)); 
 
 		var TequationSide = pObj.formula_mod;
@@ -1307,9 +1309,9 @@ solverClass = {
 		console.log('reduceTargetSide_2 - TequationSide 3: ' + TequationSide + ', inverseOperator 4: ' + inverseOperator + ', reducingTerm 4: ' + reducingTerm);
 
 		return TequationSide;
-	},
+	} 
 
-	// console.log('reduceTargetSide_2 - Test: ' + 'b*x*a'.replace('*'+'a', ''))
+	console.log('reduceTargetSide_2 - Test: ' + 'b*x*a'.replace('*'+'a', ''))
 
 
 
@@ -1317,30 +1319,30 @@ solverClass = {
 	// 		NOT IN USE:       // Disse funktioner skal gøre det muligt at finde hvilke størrelser der kan reduceres - se (#-6-#) foroven!
 	// ======================
 	// This function does much of what findNextOperator() does for the targetSide, but does it just for the nonTargetSide:
-	extractInfoFromEquationSide: function(equationSide){
+	function extractInfoFromEquationSide(equationSide){
 
-		equationSide = this.addParenthesisAroundNegativeTerms(equationSide);   // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
+		equationSide = addParenthesisAroundNegativeTerms(equationSide);   // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
 		console.log('extractInfoFromEquationSide - '+equationSide+' - targetSide 1: ' + equationSide);
 
-		equationSide = this.addParenthesisAroundFunctions(equationSide);      // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
+		equationSide = addParenthesisAroundFunctions(equationSide);      // This has to be before create_iObj AND outerParenthesisBound, so that the modifications to targetSide get incorporated.
 		console.log('extractInfoFromEquationSide - '+equationSide+' - targetSide 2: ' + equationSide);
 
-		var iObj = this.create_iObj(equationSide);
+		var iObj = create_iObj(equationSide);
 		console.log('extractInfoFromEquationSide - '+equationSide+' - iObj: ' + JSON.stringify(iObj));
 
-		var pArr = this.outerParenthesisBound(equationSide);
+		var pArr = outerParenthesisBound(equationSide);
 		console.log('extractInfoFromEquationSide - '+equationSide+' - pArr: ' + JSON.stringify(pArr));
 
-		var TtargetSide = this.removeParenthesis_formula(equationSide, pArr);      // <-------- (#-1-#) IMPORTANT : targetSide needs to be similar to iObj - see (#-2-#) below. NOTE: This is only used as a sanity-check
+		var TtargetSide = removeParenthesis_formula(equationSide, pArr);      // <-------- (#-1-#) IMPORTANT : targetSide needs to be similar to iObj - see (#-2-#) below. NOTE: This is only used as a sanity-check
 		console.log('findNextOperator - TtargetSide: ' + TtargetSide);    
 
-		iObj_red = this.removeParenthesis_iObj(iObj, pArr);							// <-------- (#-2-#) IMPORTANT : iObj needs to be similar to targetSide - see (#-1-#) above.
+		iObj_red = removeParenthesis_iObj(iObj, pArr);							// <-------- (#-2-#) IMPORTANT : iObj needs to be similar to targetSide - see (#-1-#) above.
 		console.log('extractInfoFromEquationSide - '+equationSide+' - iObj_red: ' + JSON.stringify(iObj_red));
 
-		iObj_ops = this.removeNumAndCharsAndOperators_iObj(iObj_red);				// Array of operators "+" and "-", which might be empty if "*" and "/" are the only operators used.
-		console.log('extractInfoFromEquationSide - '+equationSide+' - iObj_ops: ' + JSON.stringify(iObj_ops) + ', fObj: ' + JSON.stringify(this.fObj));
+		iObj_ops = removeNumAndCharsAndOperators_iObj(iObj_red);				// Array of operators "+" and "-", which might be empty if "*" and "/" are the only operators used.
+		console.log('extractInfoFromEquationSide - '+equationSide+' - iObj_ops: ' + JSON.stringify(iObj_ops) + ', fObj: ' + JSON.stringify(fObj));
 
-		termArr = this.identifyInvolvedTerms(iObj, iObj_ops);
+		termArr = identifyInvolvedTerms(iObj, iObj_ops);
 		console.log('extractInfoFromEquationSide - '+equationSide+' - termArr: ' + JSON.stringify(termArr));
 
 
@@ -1348,14 +1350,14 @@ solverClass = {
 
 
 		return {equationSide: equationSide, iObj: iObj, pArr: pArr, iObj_red: iObj_red, iObj_ops: iObj_ops, termArr: termArr};
-	},
+	}
 
 	// ======================
 	// 		NOT IN USE:       // Disse funktioner skal gøre det muligt at finde hvilke størrelser der kan reduceres - se (#-6-#) foroven!
 	// ======================
 	// This function has a replica of the first code found in findReducingTerm(), which has the purpose of isolating the involved 
 	// terms, eg. sin(a)*x = k  -->  ["(sin(a))","x"] for the left side og the formula.
-	identifyInvolvedTerms: function(iObj, iObj_ops){
+	function identifyInvolvedTerms(iObj, iObj_ops){
 
 		var indexStr = '_'; 
 		for (var n in iObj_ops){
@@ -1373,14 +1375,14 @@ solverClass = {
 		console.log('identifyInvolvedTerms - termArr : ' + JSON.stringify(termArr));
 
 		return termArr;
-	},
+	}
 
 
 
 	// ======================
 	// 		NOT IN USE:       // Disse funktioner skal gøre det muligt at finde hvilke størrelser der kan reduceres - se (#-6-#) foroven!
 	// ======================
-	identifyReducingTerms: function(termArr, iObj_ops){
+	function identifyReducingTerms(termArr, iObj_ops){
 		var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};
 		var TtermArr = '#'+termArr.join('#')+'#';
 		var firstOp, secondOp;
@@ -1404,14 +1406,7 @@ solverClass = {
 		return opArr;
 	}
 
-} // END solverClass
-
-
-var sc = Object.create(solverClass);
-// sc.isolateTarget('1/(x+a) + c = k');
-
-// console.log('solverClass - reducedTargetSide : ' + sc.reduceTargetSide_2(targetSide, inverseOperator, reducingTerm));
-console.log('solverClass - reducedTargetSide : ' + sc.reduceTargetSide_2('a+b/(a+d)', '-', 'a'));
+// } // END solverClass
 
 
 // 1/(3*(1+a*x/b))*((a+b)*(3*(1+c)))+c=k

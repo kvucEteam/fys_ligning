@@ -10,10 +10,10 @@
             "equation" : "DeltaE = c*m*Delta_T",
             "operators": ["*", "/"],
             "fObj_translate": {
-                                "target": "m",
+                                "target": "Delta_T",
                                 "DeltaE": {"sym": "\\Delta{E}", "val": "12 [J]"}, 
                                 "c": {"sym":"c", "val": "12 [J/(kg*K)]"},
-                                "m": {"sym":"m", "val": "12 [kg]"}, 
+                                "m": {"sym":"m_strikeThrough", "val": "12 [kg]"}, 
                                 "Delta_T": {"sym":"\\Delta{T}", "val": "12 [K]"}
                             },
             "term" : "Delta_T", 

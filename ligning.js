@@ -6,6 +6,78 @@
 // console.log('51*0.0001: ' + 51*0.0001);
 
 
+// ====================================================================================================================
+// 						PROGRAM STRUCTURE AS OF 10-03-2017
+// ==================================================================================================================== 
+
+// initQuiz();
+// 		template();
+// 		main();
+// 			giveQuestion();
+// 				poseQuestion();
+// 					convertTermsToLatexTerms();
+// 						makeTermArr();
+// 					equationToLatex();
+// 						equationSideToLatex();
+// 							positionOfInnerMostParenthesisFraction();
+// 							returnInnerParenthesisFraction();
+// 							makeFraction();
+// 								outerParenthesisBound_COPY();
+// 								returnParenthesisObj();
+// 								removeParenthesisInNominator();
+// 									removeOuterParenthesisAroundNonSpecialTerms_COPY();
+// 										outerParenthesisBound_COPY();
+// 										removeParenthesis_formula_COPY();
+// 								removeParenthesisInDenominator();
+// 									removeOuterParenthesisAroundNonSpecialTerms_COPY();
+// 										---- look above ----
+// 				poseEquation();
+// 					convertTermsToLatexTerms();
+// 						---- look above ----
+// 					equationToLatex();
+// 						---- look above ----
+// 				makeBtnOperatorChoises();
+// 		setEventListeners();
+// 			$( document ).on('click', "#next", function(event){
+// 				giveQuestion();
+// 					---- look above ----
+// 				microhint();
+// 					poseQuestion();
+// 						---- look above ----
+// 				mathJaxEquationAjuster();
+//
+// 			});
+//
+// 			$( document ).on('click', ".operator", function(event){
+// 				performOperation();
+// 					removeOuterParenthesisAroundNonSpecialTerms_COPY();
+// 						---- look above ----
+// 					outerParenthesisBound_COPY();
+// 					removeParenthesis_formula_COPY();
+// 					reduceSide_COPY();
+// 					addReducingTermOnNonTargetSide_COPY()
+// 				suggestReducingTerm();
+// 					removeOuterParenthesisAroundNonSpecialTerms_COPY();
+// 						---- look above ----
+// 					suggestReducingTerm_side();
+// 					convertTermsToLatexTerms();
+// 						---- look above ----
+//				poseEquation();
+// 					---- look above ----
+// 			});
+//
+// 			$( document ).on('click', ".reduceBtn", function(event){
+// 			});
+//
+// 			$( document ).on('click', ".microhint", function(event){
+// 			});
+//
+// 			$( document ).on('click', "#equationContainer", function(event){
+// 				microhint();
+// 					poseQuestion();
+// 						---- look above ----
+// 			});
+
 
 // ====================================================================================================================
 // 						CONVERT AN EQUATION INTO LATEX
@@ -407,13 +479,331 @@ function returnInnerParenthesisFraction(equationSide, pos_fraction) {
 // returnInnerParenthesisFraction('((a+b/c)+(d+(a+(b+z))/(q+w)*(r+t))/g)/e', 21); 
 
 
+// MARK: 13-03-2017
+
+//####################################
+//
+// MEGET VIGTIGT: 
+// --------------
+// reduceTargetSide_2() i solver.js har fejl, som kan rettes hvis reduceTargetSide_2 laves med performStrikeThrough som skabelon
+//
+//####################################
+// This function is a copy of reduceTargetSide_2 from solver.js - all bugs has been solved, w
+// The purpose of this function is to add "_strikeThrough" on all therms that needs to be reduced. 
+function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  // strikethrough
+
+	console.log('\nperformStrikeThrough - equationSide: ' + equationSide + ', inverseOperator: ' + inverseOperator + ', reducingTerm: ' + reducingTerm);
+
+	var st = '_strikeThrough';
+
+
+	var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};	
+
+	console.log('performStrikeThrough - equationSide 1: ' + equationSide + ', inverseOperator 1: ' + inverseOperator + ', reducingTerm 1: ' + reducingTerm);
+
+	var pArr = outerParenthesisBound_COPY(equationSide);
+	console.log('performStrikeThrough - pArr: ' + JSON.stringify(pArr));
+
+	var pObj = sc.returnParenthesisObj_formula(equationSide, pArr, reducingTerm);   
+	console.log('performStrikeThrough - pObj: ' + JSON.stringify(pObj)); 
+
+	var TequationSide = pObj.formula_mod;
+	var parenthesisArr = pObj.parenthesisArr;
+
+	console.log('performStrikeThrough - TequationSide 1: ' + TequationSide + ', inverseOperator 2: ' + inverseOperator + ', reducingTerm 2: ' + reducingTerm);
+
+	var count = 0;
+	var pos = TequationSide.indexOf(reducingTerm);
+	while ((pos!==-1) && (count < 10)) {
+
+		var pos_begin = null, pos_end = null;
+		var opBefore = null, opEnd = null;
+
+		// var pos = equationSide.indexOf(inversOpsLookup[inverseOperator]+reducingTerm);
+		
+		if (pos !== -1) {
+			console.log('performStrikeThrough - A0');
+
+			if (pos == 0) {
+				console.log('performStrikeThrough - A1');
+
+				pos_begin = pos;
+				pos_end = reducingTerm.length-1;
+
+				if (TequationSide.length >= pos_end+1) {
+					console.log('performStrikeThrough - A2');
+
+					opEnd = TequationSide.substring(pos_end+1, pos_end+2);
+
+				}
+			}
+
+			if ((pos > 0) && (pos < TequationSide.length - reducingTerm.length)) {
+				console.log('performStrikeThrough - A3');
+
+				pos_begin = pos;
+				pos_end = pos + reducingTerm.length-1;
+
+				opEnd = TequationSide.substring(pos_end+1, pos_end+2);
+				opBefore = TequationSide.substring(pos_begin-1, pos_begin);
+			}
+
+			if ((pos > 0) && (pos == TequationSide.length - reducingTerm.length)) {
+				console.log('performStrikeThrough - A4');
+
+				pos_begin = pos;
+				pos_end = TequationSide.length-1;
+
+				opBefore = TequationSide.substring(pos_begin-1, pos_begin);
+			}
+
+			console.log('performStrikeThrough - opBefore: _' + opBefore + '_ , opEnd: _' + opEnd + '_');
+
+			// ==================================
+
+			if (inverseOperator == '+') { 
+				console.log('performStrikeThrough - A5');
+				if (opBefore == '-')  {
+					console.log('performStrikeThrough - A6');
+
+					if ((opEnd == '+') || (opEnd == '-')) {
+						console.log('performStrikeThrough - A7');
+
+						// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
+						TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
+					}
+					if (opEnd == null) {
+						console.log('performStrikeThrough - A8');
+
+						// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+						TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+					}
+				}
+			}
+
+			if (inverseOperator == '-') { 
+				console.log('performStrikeThrough - A9');
+
+				if (opBefore == null)  {
+					console.log('performStrikeThrough - A10');
+
+					if (opEnd == '-') {
+						console.log('performStrikeThrough - A11');
+
+						// TequationSide = TequationSide.replace(reducingTerm+opEnd, opEnd);
+						TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
+					}
+
+					if (opEnd == '+') {
+						console.log('performStrikeThrough - A11b');
+
+						// TequationSide = TequationSide.replace(reducingTerm+opEnd, '');
+						TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
+					}
+				}
+				if (opBefore == '+')  {
+					console.log('performStrikeThrough - A12');
+
+					if ((opEnd == '+') || (opEnd == '-')) {
+						console.log('performStrikeThrough - A13');
+
+						// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
+						TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
+					}
+					if (opEnd == null) {
+						console.log('performStrikeThrough - A14');
+
+						// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+						TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+					}
+				}
+			}
+
+			if (inverseOperator == '*') { 
+				console.log('performStrikeThrough - A15');
+
+				if ((opBefore == '/') && ((opEnd == '*') || (opEnd == '/'))) {
+					console.log('performStrikeThrough - A17');
+
+					// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
+					TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
+				}
+
+				if ((opEnd == null) && (opBefore == '/')){
+					console.log('performStrikeThrough - A18');
+
+					// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+					TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+				}
+			}
+
+			if (inverseOperator == '/') { 
+				console.log('performStrikeThrough - A19');
+
+				if (((opBefore == null) || (opBefore == '*')) && ((opEnd == '*') || (opEnd == '/'))){
+					console.log('performStrikeThrough - A20');
+
+					// TequationSide = TequationSide.replace(reducingTerm+opEnd, '');
+					TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
+				}
+
+				if ((opEnd == null) && (opBefore == '*')){
+					console.log('performStrikeThrough - A21');
+
+					// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+					TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+				}
+			}
+
+		} else {
+			console.log('performStrikeThrough - A19');
+		}
+
+
+
+	// var mArr = TequationSide.match(new RegExp(/\w+_strikeThrough/, 'g'));
+	var mArr = TequationSide.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
+	console.log('performStrikeThrough - TequationSide 4: '+TequationSide+', mArr: ' + mArr);
+
+	if (mArr !== null){
+		console.log('performStrikeThrough - A20');
+
+		// THIS CODEBLOCK WORKS BUT MIGHT NOT BE NECESSARY:
+		var opObj = returnSurroundingOps(mArr[0], pos, TequationSide);
+		// if ((opObj.opBegin !== null) || (opObj.opEnd !== null)) {  // E.g the case that should NOT occur: "k = ...."
+			console.log('performStrikeThrough - A21');
+
+			var Tbegin = (opObj.opBegin !== null)? opObj.opBegin : '';
+			var Tend = (opObj.opEnd !== null)? opObj.opEnd : '';
+			console.log('performStrikeThrough - Tbegin+mArr[0]+Tend: '+Tbegin+mArr[0]+Tend);
+			TequationSide = TequationSide.replace(Tbegin+mArr[0]+Tend, Tbegin+'\\cancel{'+reducingTerm+'}'+Tend);
+		//}
+
+		// var TequationSide = TequationSide.replace(new RegExp(mArr[0], 'g'), '\\cancel{'+reducingTerm+'}');
+
+		console.log('performStrikeThrough - TequationSide 5: '+TequationSide+', mArr[0]: ' + mArr[0]);
+	}
+	
+
+
+
+		var dimL = String('\\cancel{'+reducingTerm+'}').length;
+		pos = TequationSide.indexOf(reducingTerm, pos+dimL);
+		++count;
+
+		console.log('performStrikeThrough - count: ' + count + ', pos: ' + pos + ' ,dimL: ' + dimL + ', pos+dimL: ' + String(pos+dimL));
+	}
+
+	console.log('performStrikeThrough - TequationSide 2: ' + TequationSide + ', inverseOperator 3: ' + inverseOperator + ', reducingTerm 3: ' + reducingTerm);
+
+	for (var n in parenthesisArr) {
+		TequationSide = TequationSide.replace('#'+n+'#', parenthesisArr[n]);
+	}
+	console.log('performStrikeThrough - TequationSide 3: ' + TequationSide + ', inverseOperator 4: ' + inverseOperator + ', reducingTerm 4: ' + reducingTerm);
+
+
+	// // var mArr = TequationSide.match(new RegExp(/\w+_strikeThrough/, 'g'));
+	// var mArr = TequationSide.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
+	// console.log('performStrikeThrough - TequationSide 4: '+TequationSide+', mArr: ' + mArr);
+
+	// if (mArr !== null){
+	// 	console.log('performStrikeThrough - A20');
+
+	// 	// THIS CODEBLOCK WORKS BUT MIGHT NOT BE NECESSARY:
+	// 	var opObj = returnSurroundingOps(mArr[0], pos, TequationSide);
+	// 	if ((opObj.opBegin !== null) || (opObj.opEnd !== null)) {  // E.g the case that should NOT occur: "k = ...."
+	// 		console.log('performStrikeThrough - A21');
+
+	// 		var Tbegin = (opObj.opBegin !== null)? opObj.opBegin : '';
+	// 		var Tend = (opObj.opEnd !== null)? opObj.opEnd : '';
+	// 		console.log('performStrikeThrough - Tbegin+mArr[0]+Tend: '+Tbegin+mArr[0]+Tend);
+	// 		TequationSide = TequationSide.replace(Tbegin+mArr[0]+Tend, '\\cancel{'+mArr[0]+'}');
+	// 	}
+
+	// 	// var TequationSide = TequationSide.replace(new RegExp(mArr[0], 'g'), '\\cancel{'+reducingTerm+'}');
+	// }
+	// console.log('performStrikeThrough - TequationSide 5: '+TequationSide+', mArr[0]: ' + mArr[0]);
+
+	return TequationSide;
+	
+
+	// }
+}
+// console.log("performStrikeThrough('a+b', '-', 'a'): " + performStrikeThrough('a+b', '-', 'a'));
+// console.log("performStrikeThrough('a-b', '-', 'a'): " + performStrikeThrough('a-b', '-', 'a'));
+// console.log("performStrikeThrough('b+a', '-', 'a'): " + performStrikeThrough('b+a', '-', 'a'));
+// console.log("performStrikeThrough('b-a', '-', 'a'): " + performStrikeThrough('b-a', '-', 'a'));
+
+// console.log("performStrikeThrough('a+b', '+', 'a'): " + performStrikeThrough('a+b', '+', 'a'));
+// console.log("performStrikeThrough('a-b', '+', 'a'): " + performStrikeThrough('a-b', '+', 'a'));
+// console.log("performStrikeThrough('b+a', '+', 'a'): " + performStrikeThrough('b+a', '+', 'a'));
+// console.log("performStrikeThrough('b-a', '+', 'a'): " + performStrikeThrough('b-a', '+', 'a'));
+
+// console.log("performStrikeThrough('c+a+b', '+', 'a'): " + performStrikeThrough('c+a+b', '+', 'a'));
+// console.log("performStrikeThrough('c+a-b', '+', 'a'): " + performStrikeThrough('c+a-b', '+', 'a'));
+// console.log("performStrikeThrough('c+b+a', '+', 'a'): " + performStrikeThrough('c+b+a', '+', 'a'));
+// console.log("performStrikeThrough('c+b-a', '+', 'a'): " + performStrikeThrough('c+b-a', '+', 'a'));
+// console.log("performStrikeThrough('c+a+b', '-', 'a'): " + performStrikeThrough('c+a+b', '-', 'a'));
+// console.log("performStrikeThrough('c+a-b', '-', 'a'): " + performStrikeThrough('c+a-b', '-', 'a'));
+// console.log("performStrikeThrough('c+b+a', '-', 'a'): " + performStrikeThrough('c+b+a', '-', 'a'));
+// console.log("performStrikeThrough('c+b-a', '-', 'a'): " + performStrikeThrough('c+b-a', '-', 'a'));
+
+// console.log("performStrikeThrough('a*b', '/', 'a'): " + performStrikeThrough('a*b', '/', 'a'));
+// console.log("performStrikeThrough('a/b', '/', 'a'): " + performStrikeThrough('a/b', '/', 'a'));
+// console.log("performStrikeThrough('b*a', '/', 'a'): " + performStrikeThrough('b*a', '/', 'a'));
+// console.log("performStrikeThrough('b/a', '/', 'a'): " + performStrikeThrough('b/a', '/', 'a')); // <---- FEJL - 10-03-2017  <--- OK - 10-03-2017
+
+// console.log("performStrikeThrough('a*b', '*', 'a'): " + performStrikeThrough('a*b', '*', 'a')); // <---- FEJL - 10-03-2017  <--- OK - 10-03-2017
+// console.log("performStrikeThrough('a/b', '*', 'a'): " + performStrikeThrough('a/b', '*', 'a')); // <---- FEJL - 10-03-2017  <--- OK - 10-03-2017
+// console.log("performStrikeThrough('b*a', '*', 'a'): " + performStrikeThrough('b*a', '*', 'a')); // <---- FEJL - 10-03-2017  <--- OK - 10-03-2017
+// console.log("performStrikeThrough('b/a', '*', 'a'): " + performStrikeThrough('b/a', '*', 'a')); 
+
+console.log("performStrikeThrough('b/a*a', '*', 'a'): " + performStrikeThrough('b/a*a', '*', 'a')); 
+
+console.log('CONVERT: ' + Number('2e-3'));
+console.log('CONVERT: ' + Number('4.867E-7').toPrecision(21));  // /^([+-])?(\d+)\.?(\d*)[eE]([+-]?\d+)$/
+console.log('CONVERT: ' + '4.867E-7'.match(/^([+-])?(\d+)\.?(\d*)[eE]([+-]?\d+)$/));
+
+
+function toDecStr(num){
+	console.log('toDecStr - num: ' + num);
+	strNum = String(num).replace('E', 'e');
+	console.log('toDecStr - num: ' + num);
+	if (strNum.indexOf('e')!==-1) {
+		console.log('toDecStr - A0');
+		var m = strNum.match(/[eE][+-]?\d+/);
+		var n = strNum.substring(0, strNum.indexOf('e'));
+		console.log('toDecStr - n: ' + n + ', m: ' + m);
+		if (m.indexOf('-')!==-1) {
+			
+		} else {
+
+		}
+	}
+}
+
+toDecStr(0.00000000003);
+toDecStr('3e-10');
+toDecStr('-3e-10');
+toDecStr('3e10');
+toDecStr('-3e10');
+toDecStr('-3.01e10');
+
+// 3.2e-3 = 0.0032
+
+
+// b/\cancel{a}*a
+// 012345678901234567890123456789012345678901234567890
+//           |         |         |         |         |
+
+
 function suggestReducingTerm(formula){
 	formula = formula.replace(/ /g, '');
 	console.log('\nsuggestReducingTerm - formula: ' + formula);
 
 	var formulaArr = formula.split('=');
 	// var targetSide = (formulaArr[0].indexOf(fObj.target)!==-1)? formulaArr[0] : formulaArr[1];  // select the side of the the formula on which fObj.target is located.
-	if (formulaArr[0].indexOf(fObj.target)!==-1) {
+	if ((formulaArr[0].indexOf(fObj.target)!==-1) ) {
 		var targetSide = removeOuterParenthesisAroundNonSpecialTerms_COPY(formulaArr[0]);
 		var nonTargetSide = removeOuterParenthesisAroundNonSpecialTerms_COPY(formulaArr[1]);
 		var varSide = 'left';
@@ -430,7 +820,12 @@ function suggestReducingTerm(formula){
 	var opObj_nonTargetSide = suggestReducingTerm_side(nonTargetSide);
 	console.log('suggestReducingTerm - opObj_nonTargetSide: ' + JSON.stringify(opObj_nonTargetSide)); 
 
+
+
 	if (opObj_targetSide !== null) {
+
+		fObj.suggestedReducingTerm = opObj_targetSide.term;
+
 		if ((opObj_targetSide.op == '+') || (opObj_targetSide.op == '-')) {
 			return '<div class="reduceBtn btn btn-info">Reducer med '+convertTermsToLatexTerms( opObj_targetSide.term )+'</div>';
 		}
@@ -439,6 +834,9 @@ function suggestReducingTerm(formula){
 			return '<div class="reduceBtn btn btn-info">Forkort med '+convertTermsToLatexTerms( opObj_targetSide.term )+'</div>';
 		}
 	} else if (opObj_nonTargetSide !== null) {
+
+		fObj.suggestedReducingTerm = opObj_nonTargetSide.term;
+
 		if ((opObj_nonTargetSide.op == '+') || (opObj_nonTargetSide.op == '-')) {
 			return '<div class="reduceBtn btn btn-info">Reducer med '+convertTermsToLatexTerms( opObj_nonTargetSide.term )+'</div>';
 		}
@@ -757,6 +1155,7 @@ function initQuiz() {
 	template();
 	main();
 	setEventListeners();
+
 }
 
 
@@ -775,13 +1174,23 @@ function giveQuestion() {
 
 	if (memObj.currentQuestionNo < memObj.numOfquestions){
 
-		// $('#questionContainer').html(poseQuestion());
+		$('#questionContainer').html(poseQuestion());
 		
 		$('#equationContainer').html(poseEquation());
 
 		// microhint('#equationContainer', poseQuestion(), "red");
-		microhint('.explanationText', "TEST HINT", "red");
-		$( "#equationContainer" ).trigger( "click" );
+		// microhint('#equationContainer', "TEST HINT", "red");
+
+
+		// $('#micro_hint').html(poseEquation());
+
+		// MathJax.Hub.Queue(function (){
+		// 	$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+		// 	mathJaxEquationAjuster('#equationContainer');
+		// });
+
+
+		// $( "#equationContainer" ).trigger( "click" );
 
 		// $('#equationContainer').html('$$ \\frac{Q}{C} = \\frac{ C \\cdot m \\cdot \\Delta T }{C} $$');   // <--------- VERY IMPORTANT: All "\" has to be "\\"
 		// $('#equationContainer').html('\\( \\frac{Q}{C} = \\frac{ C \\cdot m \\cdot \\Delta T }{C} \\)'); // <--------- VERY IMPORTANT: All "\" has to be "\\"
@@ -975,6 +1384,9 @@ function convertTermsToLatexTerms(equation){
 		termStr_mod = termStr_mod.replace(delims, opArr[n]);
 	}
 	console.log('convertTermsToLatexTerms - termStr_mod: ' + JSON.stringify(termStr_mod));
+
+
+
 
 	return termStr_mod;
 }
@@ -1757,5 +2169,7 @@ $(document).ready(function() {
 	MathJax.Hub.Queue(function () {
 		console.log('mathJaxEquationAjuster - MJXc-display: ' + $('.MJXc-display').length + ', mjx-char: ' + $('#equationContainer .mjx-char').length);  // mjx-char
 	});
+
+	// microhint('#equationContainer', "TEST HINT", "red");
 
 });

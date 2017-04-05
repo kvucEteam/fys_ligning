@@ -7,6 +7,9 @@
 #questionContainer{
 	/*border: 1px solid #F00;*/
 	margin-bottom: 40px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 50%;
 }
 
 #equationContainer{
