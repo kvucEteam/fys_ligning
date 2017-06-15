@@ -1,0 +1,69 @@
+{
+	"header" : "Omskriv formler (OBJEKTET ER IKKE FÆRDIGT)",
+	"instruction" : "Du skal isolere en fysisk størrelse så denne står alene på den ene side af lighedstegnet",
+    "explanation" : "Størrelser i en ligning isoleres så de senere kan beregnes eller indsættes i andre ligninger. Isolering af en fysisk størrelse gøres med de grundlæggende regneregler du kender fra matematik.",
+	"genericQuestion" : "Isoler størrelsen latex{term} i udtrykket latex{equation} for text{phrase}",
+    "lorem_ipsum" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut ultrices finibus felis, non porta eros semper eu. Morbi at tempus felis. Nullam at hendrerit dolor, nec dapibus dolor. Duis condimentum dui sit amet ex vehicula, in tempor quam venenatis. Integer molestie sit amet sem at faucibus. Donec accumsan purus et pellentesque dapibus. Integer sed arcu in nisi mattis cursus sed rutrum eros. Aliquam ut cursus felis, eget mattis dui.",
+    "distanceBeforeHelp" : 1,
+    "qObj": [
+        {
+            "question" : "Isoler massen latex{term} i formlen",
+            "equation" : "DeltaE = c*m*Delta_T",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "m",
+                                "DeltaE": {"sym": "\\Delta{E}", "val": "12 [J]", "word": "Varmen"}, 
+                                "c": {"sym":"c", "val": "12 [J/(kg*K)]", "word": "Varmecapaciteten"},
+                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}, 
+                                "Delta_T": {"sym":"\\Delta{T}", "val": "12 [K]", "word": "Temperaturforskellen"}
+                            },
+            "term" : "m", 
+            "phrase" : " den rette linje"
+        },
+        {
+            "question" : "Isoler størrelsen latex{term} i udtrykket",
+            "equation" : "a = c*b",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "b", 
+                                "a": {"sym":"a", "val": "12 [kg]"}, 
+                                "b": {"sym": "b", "val": "12 [J]"}, 
+                                "c": {"sym":"c", "val": "12 [J/(kg*K)]"}
+                            },
+            "term" : "b", 
+            "phrase" : " den rette linje"
+        }
+    ],
+    "BACKUP": [
+        {
+            "question" : "Isoler størrelsen {term} i udtrykket {equation} for {phrase}",
+            "term" : "x", "equation" : "(a*x + b)/c + 2 = y", "phrase" : "den rette linje"
+        },
+        {
+            "question" : "Isoler størrelsen {term} i udtrykket {equation} for {phrase}",
+            "term" : "x", "equation" : "(a*x + b)/c + 3 = y", "phrase" : "den rette linje"
+        },
+        {
+            "question" : "Isoler størrelsen {term} i udtrykket {equation} for {phrase}",
+            "term" : "x", "equation" : "(a*x + b)/c + 4 = y", "phrase" : "den rette linje"
+        },
+        {
+            "question" : "Isoler størrelsen latex{term} i udtrykket latex{equation} for text{phrase}, latex{test} cc eller \\(test2_{test2}\\)",
+            "equation" : "dd = (d+(a+abe+br/c))/e*a",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "c", 
+                                "dd": {"sym":"dd_x", "val": "12 [kg]"}, 
+                                "d": {"sym": "d_x", "val": "12 [J]"}, 
+                                "a": {"sym":"a_x", "val": "12 [J/(kg*K)]"},
+                                "abe": {"sym":"abe_x", "val": "12 [kg]"}, 
+                                "br": {"sym":"br_x", "val": "12 [kg]"}, 
+                                "c": {"sym":"c_x", "val": "12 [kg]"},
+                                "e": {"sym":"e_x", "val": "12 [kg]"}
+                            },
+            "term" : "c", 
+            "phrase" : " den rette linje",
+            "test": "test_{test}"
+        }
+    ]
+}

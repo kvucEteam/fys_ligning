@@ -1,11 +1,40 @@
 {
-    "header" : "Omskriv formler",
+    "header" : "Omskriv formler - TEST 2",
     "instruction" : "Du skal isolere en fysisk størrelse så denne står alene på den ene side af lighedstegnet",
     "explanation" : "Størrelser i en ligning isoleres så de senere kan beregnes eller indsættes i andre ligninger. Isolering af en fysisk størrelse gøres med de grundlæggende regneregler du kender fra matematik.",
     "genericQuestion" : "Isoler størrelsen latex{term} i udtrykket latex{equation} for text{phrase}",
     "lorem_ipsum" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut ultrices finibus felis, non porta eros semper eu. Morbi at tempus felis. Nullam at hendrerit dolor, nec dapibus dolor. Duis condimentum dui sit amet ex vehicula, in tempor quam venenatis. Integer molestie sit amet sem at faucibus. Donec accumsan purus et pellentesque dapibus. Integer sed arcu in nisi mattis cursus sed rutrum eros. Aliquam ut cursus felis, eget mattis dui.",
     "distanceBeforeHelp" : 1,
     "qObj": [
+        
+        {
+            "question" : "Isoler bølgelængden latex{term} i formlen",
+            "equation" : "n*lambda/sinT = d",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "lambda",
+                                "sinT": {"sym": "sin(\\theta)", "val": "12 [J]", "word": "Sinus til vinklen theta"}, 
+                                "n": {"sym":"n", "val": "12 [J/(kg*K)]", "word": "Ordnen"},
+                                "lambda": {"sym":"\\lambda", "val": "12 [kg]", "word": "Bølgelængden"},
+                                "d": {"sym":"d", "val": "12 [kg]", "word": "Gitterkonstanten"}
+                            },
+            "term" : "lambda", 
+            "phrase" : " den rette linje"
+        },
+        {
+            "question" : "Isoler sinus til vinklen theta latex{term} i formlen",
+            "equation" : "n*lambda = d*sinT",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "sinT",
+                                "sinT": {"sym": "sin(\\theta)", "val": "12 [J]", "word": "Sinus til vinklen theta"}, 
+                                "n": {"sym":"n", "val": "12 [J/(kg*K)]", "word": "Ordnen"},
+                                "lambda": {"sym":"\\lambda", "val": "12 [kg]", "word": "Bølgelængden"},
+                                "d": {"sym":"d", "val": "12 [kg]", "word": "Gitterkonstanten"}
+                            },
+            "term" : "sinT", 
+            "phrase" : " den rette linje"
+        },
         {
             "question" : "Isoler bølgelængden latex{term} i formlen",
             "equation" : "f = v/lambda",

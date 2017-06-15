@@ -5,6 +5,50 @@
 // console.log('51*0.001: ' + 51*0.001);
 // console.log('51*0.0001: ' + 51*0.0001);
 
+// Floating point - sikring i jackpot:
+// http://stackoverflow.com/questions/1458633/how-to-deal-with-floating-point-number-precision-in-javascript
+
+// ====================================================================================================================
+// 						PROGRAM PROBLEMS
+// ==================================================================================================================== 
+
+// ==================
+// 		8/5-2017:
+// ==================
+// INPUT: 	equationToLatex('a/b=\\cancel{b}*c/\\cancel{b}');    
+// OUTPUT:  equationToLatex - latexEq: \frac{a}{b}=\frac{\cancel{b} \cdot c}{\cancel{b}}
+
+// INPUT: 	equationSideToLatex('\\cancel{b}*c/\\cancel{b}');
+// OUTPUT: 	equationSideToLatex - equationSide 5: \frac{\cancel{b} \cdot c}{\cancel{b}}
+
+// ==================
+// 		9/5-2017:
+// ==================
+// poseEquation - equation 1: \require{cancel} a/b=\cancel{b}*c/\cancel{b}
+// poseEquation - equation 2: "\\require{cancel}a\\b{\\cancel{b}}c/\\cancel{b}"					<----- FEJL: lighedstegnet forsvinder!
+// poseEquation - equation 3: "$$\\frac{\\require{cancel}a\\b{\\cancel{b}}c}{\\cancel{b}}$$"	<----- FEJL: \\require{cancel} flyttes ind i \\frac{}
+
+// ==================
+// 		23/5-2017:
+// ==================
+// suggestReducingTerm  >  suggestReducingTerm_side   <----- Her kan jeg måske indsætte funktion til at foreslå "a" når a*b/(a*c) 
+// Måske kan en funktion laves der ken anvendes i både suggestReducingTerm_side OG 
+
+
+// INPUT: 	
+// OUTPUT: 	
+
+// INPUT: 	
+// OUTPUT: 	
+
+// INPUT: 	
+// OUTPUT: 	
+
+// INPUT: 	
+// OUTPUT: 	
+
+// INPUT: 	
+// OUTPUT: 	
 
 // ====================================================================================================================
 // 						PROGRAM STRUCTURE AS OF 10-03-2017
@@ -14,6 +58,7 @@
 // 		template();
 // 		main();
 // 			giveQuestion();
+//				make_fObj();
 // 				poseQuestion();
 // 					convertTermsToLatexTerms();
 // 						makeTermArr();
@@ -151,11 +196,11 @@ console.log('STRING: ' + '#'.repeat(10));
 // IMPORTANT: All symbols must not contain a space as a char. E.g. "\\Delta E" has to be written as "\\Delta{E}"
 // This function can convert an entire equation into LaTex, eg equation = "g + b*x/c = d", AND it can convert one side of an equation into LaTex, eg just "g + b*x/c".
 function equationToLatex(equation) {
-	console.log('equationToLatex - equation: ' + equation);
+	console.log('\nequationToLatex - equation: ' + equation);
 
 	var leftSide, rightSide, latexEq;
 	equation = equation.replace(/ /g, '');
-	console.log('findNextOperator - equation: ' + equation);
+	console.log('equationToLatex - equation: ' + equation);
 
 	var equationArr = equation.split('=');
 
@@ -175,6 +220,8 @@ equationToLatex('g + b*x/c');
 equationToLatex('g + b*x/c = d');
 equationToLatex('Delta_E = c*m*Delta_T');
 equationToLatex('Delta_E/Delta_T = c*m*Delta_T/Delta_T');
+equationToLatex('Delta_E/Delta_T = c*m*Delta_T/Delta_T');
+equationToLatex('a/b=\\cancel{b}*c/\\cancel{b}');
 
 
 
@@ -218,6 +265,7 @@ function equationSideToLatex(equationSide) {
 // equationSideToLatex('a*(b+c)/(d)');
 // equationSideToLatex('(a+b/c)/e');
 equationSideToLatex('(a+b/c)*(d+(a+b/c))/e');  
+equationSideToLatex('\\cancel{b}*c/\\cancel{b}');
 
 
 function makeFraction(equationSide) {
@@ -492,9 +540,11 @@ function returnInnerParenthesisFraction(equationSide, pos_fraction) {
 // The purpose of this function is to add "_strikeThrough" on all therms that needs to be reduced. 
 function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  // strikethrough
 
-	console.log('\nperformStrikeThrough - equationSide: ' + equationSide + ', inverseOperator: ' + inverseOperator + ', reducingTerm: ' + reducingTerm);
+
+	console.log('\nperformStrikeThrough - equationSide: _' + equationSide + '_, inverseOperator: ' + inverseOperator + ', reducingTerm: ' + reducingTerm);
 
 	var st = '_strikeThrough';
+	// var st = '@';   // Added 1/5-2017
 
 
 	var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};	
@@ -512,187 +562,216 @@ function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  //
 
 	console.log('performStrikeThrough - TequationSide 1: ' + TequationSide + ', inverseOperator 2: ' + inverseOperator + ', reducingTerm 2: ' + reducingTerm);
 
-	var count = 0;
-	var pos = TequationSide.indexOf(reducingTerm);
-	while ((pos!==-1) && (count < 10)) {
+	var numOfreducingTerms = TequationSide.split(reducingTerm).length - 1;     // Added 1/5-2017
+	console.log('performStrikeThrough - numOfreducingTerms: ' + numOfreducingTerms); 
 
-		var pos_begin = null, pos_end = null;
-		var opBefore = null, opEnd = null;
+	// if (numOfreducingTerms > 1) {  // Added 1/5-2017
+	if (numOfreducingTerms == 2) {    // Added 9/5-2017
+		var count = 0;
+		// var pos = TequationSide.indexOf(reducingTerm);  				 // ERROR: find all, but only the operator and its inverse is nedded // COMMENTED OUT 9/5-2017
+		var pos = TequationSide.indexOf(inverseOperator + reducingTerm) + 1;  // ADDED 9/5-2017
+		while ((pos!==-1) && (count < 2)) {
 
-		// var pos = equationSide.indexOf(inversOpsLookup[inverseOperator]+reducingTerm);
-		
-		if (pos !== -1) {
-			console.log('performStrikeThrough - A0');
+			// pos += 1;  // ADDED 9/5-2017 - it compemnsates for the addition of the inverseOperator
 
-			if (pos == 0) {
-				console.log('performStrikeThrough - A1');
+			console.log('performStrikeThrough - WHILE ---------------------------- count: ' + count + ', pos: ' + pos + ', TequationSide: ' + TequationSide );
 
-				pos_begin = pos;
-				pos_end = reducingTerm.length-1;
+			var pos_begin = null, pos_end = null;
+			var opBefore = null, opEnd = null;
 
-				if (TequationSide.length >= pos_end+1) {
-					console.log('performStrikeThrough - A2');
+			// var pos = equationSide.indexOf(inversOpsLookup[inverseOperator]+reducingTerm);
+			
+			if (pos !== -1) {
+				console.log('performStrikeThrough - A0');
+
+				if (pos == 0) {
+					console.log('performStrikeThrough - A1');
+
+					pos_begin = pos;
+					pos_end = reducingTerm.length-1;
+
+					if (TequationSide.length >= pos_end+1) {
+						console.log('performStrikeThrough - A2');
+
+						opEnd = TequationSide.substring(pos_end+1, pos_end+2);
+
+					}
+				}
+
+				if ((pos > 0) && (pos < TequationSide.length - reducingTerm.length)) {
+					console.log('performStrikeThrough - A3');
+
+					pos_begin = pos;
+					pos_end = pos + reducingTerm.length-1;
 
 					opEnd = TequationSide.substring(pos_end+1, pos_end+2);
-
+					opBefore = TequationSide.substring(pos_begin-1, pos_begin);
 				}
-			}
 
-			if ((pos > 0) && (pos < TequationSide.length - reducingTerm.length)) {
-				console.log('performStrikeThrough - A3');
+				if ((pos > 0) && (pos == TequationSide.length - reducingTerm.length)) {
+					console.log('performStrikeThrough - A4');
 
-				pos_begin = pos;
-				pos_end = pos + reducingTerm.length-1;
+					pos_begin = pos;
+					pos_end = TequationSide.length-1;
 
-				opEnd = TequationSide.substring(pos_end+1, pos_end+2);
-				opBefore = TequationSide.substring(pos_begin-1, pos_begin);
-			}
+					opBefore = TequationSide.substring(pos_begin-1, pos_begin);
+				}
 
-			if ((pos > 0) && (pos == TequationSide.length - reducingTerm.length)) {
-				console.log('performStrikeThrough - A4');
+				console.log('performStrikeThrough - opBefore: _' + opBefore + '_ , opEnd: _' + opEnd + '_');
 
-				pos_begin = pos;
-				pos_end = TequationSide.length-1;
+				// ==================================
 
-				opBefore = TequationSide.substring(pos_begin-1, pos_begin);
-			}
+				if (inverseOperator == '+') { 
+					console.log('performStrikeThrough - A5');
+					if (opBefore == '-')  {
+						console.log('performStrikeThrough - A6');
 
-			console.log('performStrikeThrough - opBefore: _' + opBefore + '_ , opEnd: _' + opEnd + '_');
+						if ((opEnd == '+') || (opEnd == '-')) {
+							console.log('performStrikeThrough - A7');
 
-			// ==================================
+							// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
+							TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
+						}
+						if (opEnd == null) {
+							console.log('performStrikeThrough - A8');
 
-			if (inverseOperator == '+') { 
-				console.log('performStrikeThrough - A5');
-				if (opBefore == '-')  {
-					console.log('performStrikeThrough - A6');
+							// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+							TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+						}
+					}
+				}
 
-					if ((opEnd == '+') || (opEnd == '-')) {
-						console.log('performStrikeThrough - A7');
+				if (inverseOperator == '-') { 
+					console.log('performStrikeThrough - A9');
+
+					if (opBefore == null)  {
+						console.log('performStrikeThrough - A10');
+
+						if (opEnd == '-') {
+							console.log('performStrikeThrough - A11');
+
+							// TequationSide = TequationSide.replace(reducingTerm+opEnd, opEnd);
+							TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
+						}
+
+						if (opEnd == '+') {
+							console.log('performStrikeThrough - A11b');
+
+							// TequationSide = TequationSide.replace(reducingTerm+opEnd, '');
+							TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
+						}
+					}
+					if (opBefore == '+')  {
+						console.log('performStrikeThrough - A12');
+
+						if ((opEnd == '+') || (opEnd == '-')) {
+							console.log('performStrikeThrough - A13');
+
+							// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
+							TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
+						}
+						if (opEnd == null) {
+							console.log('performStrikeThrough - A14');
+
+							// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+							TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+						}
+					}
+				}
+
+				if (inverseOperator == '*') { 
+					console.log('performStrikeThrough - A15');
+
+					// if ((opBefore == '/') && ((opEnd == '*') || (opEnd == '/'))) {
+					if (((opBefore == null) || (opBefore == '*') || (opBefore == '/')) && ((opEnd == '*') || (opEnd == '/'))){  // Added 1/5-2017
+						console.log('performStrikeThrough - A16');
 
 						// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
 						TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
 					}
-					if (opEnd == null) {
-						console.log('performStrikeThrough - A8');
+
+					// if ((opEnd == null) && (opBefore == '/')){
+					if ((opEnd == null) && ((opBefore == '*') || (opBefore == '/'))){  // Added 1/5-2017
+						console.log('performStrikeThrough - A17');
 
 						// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
 						TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
 					}
 				}
-			}
 
-			if (inverseOperator == '-') { 
-				console.log('performStrikeThrough - A9');
+				if (inverseOperator == '/') { 
+					console.log('performStrikeThrough - A18');
 
-				if (opBefore == null)  {
-					console.log('performStrikeThrough - A10');
-
-					if (opEnd == '-') {
-						console.log('performStrikeThrough - A11');
-
-						// TequationSide = TequationSide.replace(reducingTerm+opEnd, opEnd);
-						TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
-					}
-
-					if (opEnd == '+') {
-						console.log('performStrikeThrough - A11b');
+					// if (((opBefore == null) || (opBefore == '*')) && ((opEnd == '*') || (opEnd == '/'))){ 
+					if (((opBefore == null) || (opBefore == '*') || (opBefore == '/')) && ((opEnd == '*') || (opEnd == '/'))){  // Added 1/5-2017
+						console.log('performStrikeThrough - A19');
 
 						// TequationSide = TequationSide.replace(reducingTerm+opEnd, '');
 						TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
 					}
-				}
-				if (opBefore == '+')  {
-					console.log('performStrikeThrough - A12');
 
-					if ((opEnd == '+') || (opEnd == '-')) {
-						console.log('performStrikeThrough - A13');
-
-						// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
-						TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
-					}
-					if (opEnd == null) {
-						console.log('performStrikeThrough - A14');
+					// if ((opEnd == null) && (opBefore == '*')){
+					if ((opEnd == null) && ((opBefore == '*') || (opBefore == '/'))){  // Added 1/5-2017
+						console.log('performStrikeThrough - A20');
 
 						// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
 						TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
 					}
 				}
+
+			} else {
+				console.log('performStrikeThrough - A21');
 			}
 
-			if (inverseOperator == '*') { 
-				console.log('performStrikeThrough - A15');
+			// TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);  // <----- CODE ADDED 6/4-2017:
 
-				if ((opBefore == '/') && ((opEnd == '*') || (opEnd == '/'))) {
-					console.log('performStrikeThrough - A17');
 
-					// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
-					TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
-				}
+			// var mArr = TequationSide.match(new RegExp(/\w+_strikeThrough/, 'g'));
+			var mArr = TequationSide.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
+			// var mArr = TequationSide.match(new RegExp(/\w+@/, 'g'));
+			console.log('performStrikeThrough - TequationSide 4: '+TequationSide+', mArr: ' + mArr);
 
-				if ((opEnd == null) && (opBefore == '/')){
-					console.log('performStrikeThrough - A18');
+			if (mArr !== null){
+				console.log('performStrikeThrough - A22');
 
-					// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
-					TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
-				}
+				// THIS CODEBLOCK WORKS BUT MIGHT NOT BE NECESSARY:
+				console.log('performStrikeThrough - mArr: ' + mArr + ', pos: ' + pos + ', TequationSide: ' + TequationSide);
+				var opObj = returnSurroundingOps(mArr[0], pos, TequationSide);
+				console.log('performStrikeThrough - opObj: ' + JSON.stringify(opObj));
+				// if ((opObj.opBegin !== null) || (opObj.opEnd !== null)) {  // E.g the case that should NOT occur: "k = ...."
+					console.log('performStrikeThrough - A23');
+
+					var Tbegin = (opObj.opBegin !== null)? opObj.opBegin : '';
+					var Tend = (opObj.opEnd !== null)? opObj.opEnd : '';
+					// console.log('performStrikeThrough - Tbegin+mArr[0]+Tend: '+Tbegin+mArr[0]+Tend);
+					// TequationSide = TequationSide.replace(Tbegin+mArr[0]+Tend, Tbegin+'\\cancel{'+reducingTerm+'}'+Tend);
+					console.log('performStrikeThrough - Tbegin+mArr[0]+Tend: '+Tbegin+mArr[0]+Tend);
+
+					// TequationSide = TequationSide.replace(mArr[0], '\\cancel{'+reducingTerm+'}');	// COMMENTED OUT 1/5-2017
+				//}
+
+				// var TequationSide = TequationSide.replace(new RegExp(mArr[0], 'g'), '\\cancel{'+reducingTerm+'}');
+
+				console.log('performStrikeThrough - TequationSide 5: '+TequationSide+', mArr[0]: ' + mArr[0]);
 			}
+		
+			console.log('performStrikeThrough - count: ' + count + ', pos: ' + pos);
 
-			if (inverseOperator == '/') { 
-				console.log('performStrikeThrough - A19');
-
-				if (((opBefore == null) || (opBefore == '*')) && ((opEnd == '*') || (opEnd == '/'))){
-					console.log('performStrikeThrough - A20');
-
-					// TequationSide = TequationSide.replace(reducingTerm+opEnd, '');
-					TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
-				}
-
-				if ((opEnd == null) && (opBefore == '*')){
-					console.log('performStrikeThrough - A21');
-
-					// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
-					TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
-				}
+			var dimL = String('\\cancel{'+reducingTerm+'}').length;
+			// pos = TequationSide.indexOf(reducingTerm, pos+dimL);
+			// pos = TequationSide.indexOf(reducingTerm, pos+1);  								  // COMMENTED OUT 9/5-2017
+			pos = TequationSide.indexOf(inversOpsLookup[inverseOperator] + reducingTerm, 0) + 1;  // ADDED 9/5-2017
+			if (pos === -1) {
+				console.log('performStrikeThrough - A24');
+				pos = TequationSide.indexOf(reducingTerm, 0);    // ADDED 9/5-2017
 			}
+			++count;
 
-		} else {
-			console.log('performStrikeThrough - A19');
-		}
+			console.log('performStrikeThrough - count: ' + count + ', TequationSide: ' + TequationSide + ', pos: ' + pos + ' ,dimL: ' + dimL + ', pos+dimL: ' + String(pos+dimL));
+		
+		} // END WHILE
 
-
-
-	// var mArr = TequationSide.match(new RegExp(/\w+_strikeThrough/, 'g'));
-	var mArr = TequationSide.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
-	console.log('performStrikeThrough - TequationSide 4: '+TequationSide+', mArr: ' + mArr);
-
-	if (mArr !== null){
-		console.log('performStrikeThrough - A20');
-
-		// THIS CODEBLOCK WORKS BUT MIGHT NOT BE NECESSARY:
-		var opObj = returnSurroundingOps(mArr[0], pos, TequationSide);
-		// if ((opObj.opBegin !== null) || (opObj.opEnd !== null)) {  // E.g the case that should NOT occur: "k = ...."
-			console.log('performStrikeThrough - A21');
-
-			var Tbegin = (opObj.opBegin !== null)? opObj.opBegin : '';
-			var Tend = (opObj.opEnd !== null)? opObj.opEnd : '';
-			console.log('performStrikeThrough - Tbegin+mArr[0]+Tend: '+Tbegin+mArr[0]+Tend);
-			TequationSide = TequationSide.replace(Tbegin+mArr[0]+Tend, Tbegin+'\\cancel{'+reducingTerm+'}'+Tend);
-		//}
-
-		// var TequationSide = TequationSide.replace(new RegExp(mArr[0], 'g'), '\\cancel{'+reducingTerm+'}');
-
-		console.log('performStrikeThrough - TequationSide 5: '+TequationSide+', mArr[0]: ' + mArr[0]);
-	}
-	
-
-
-
-		var dimL = String('\\cancel{'+reducingTerm+'}').length;
-		pos = TequationSide.indexOf(reducingTerm, pos+dimL);
-		++count;
-
-		console.log('performStrikeThrough - count: ' + count + ', pos: ' + pos + ' ,dimL: ' + dimL + ', pos+dimL: ' + String(pos+dimL));
-	}
+	} // END IF
 
 	console.log('performStrikeThrough - TequationSide 2: ' + TequationSide + ', inverseOperator 3: ' + inverseOperator + ', reducingTerm 3: ' + reducingTerm);
 
@@ -729,6 +808,9 @@ function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  //
 
 	// }
 }
+//================
+//		OLD 		// AFTER 1/5-2017
+//================
 // console.log("performStrikeThrough('a+b', '-', 'a'): " + performStrikeThrough('a+b', '-', 'a'));
 // console.log("performStrikeThrough('a-b', '-', 'a'): " + performStrikeThrough('a-b', '-', 'a'));
 // console.log("performStrikeThrough('b+a', '-', 'a'): " + performStrikeThrough('b+a', '-', 'a'));
@@ -758,11 +840,572 @@ function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  //
 // console.log("performStrikeThrough('b*a', '*', 'a'): " + performStrikeThrough('b*a', '*', 'a')); // <---- FEJL - 10-03-2017  <--- OK - 10-03-2017
 // console.log("performStrikeThrough('b/a', '*', 'a'): " + performStrikeThrough('b/a', '*', 'a')); 
 
-console.log("performStrikeThrough('b/a*a', '*', 'a'): " + performStrikeThrough('b/a*a', '*', 'a')); 
+
+//================
+//		NEW 		// AFTER 1/5-2017
+//================
+// console.log("performStrikeThrough('b/a*a', '*', 'a'): " + performStrikeThrough('b/a*a', '*', 'a')); 
+
+// console.log("performStrikeThrough('(c-b)/a*a', '*', 'a'): " + performStrikeThrough('(c-b)/a*a', '*', 'a')); 
+
+
+// console.log("performStrikeThrough('b*c/b', '/', 'b'): " + performStrikeThrough('b*c/b', '/', 'b')); 
+// console.log("performStrikeThrough('b/b*c', '/', 'b'): " + performStrikeThrough('b/b*c', '/', 'b'));
+
+// 01234567890123456789012345678901234567890
+//           |         |         |         |
+// b_strikeThrough*c/b
+// \cancel{b}*c/b
+
+
+function replaceStrikeThroughDelimiter(equation) {
+	console.log('\nreplaceStrikeThroughDelimiter - equation 1: ' + equation);
+
+	var mArr = equation.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
+
+	if (mArr !== null){
+		for (var n in mArr) {
+			equation = equation.replace(mArr[n], '\\cancel{'+mArr[n].replace('_strikeThrough', '')+'}');
+		}
+	}
+
+	console.log('replaceStrikeThroughDelimiter - equation 2: ' + equation);
+
+	return equation;
+}
+replaceStrikeThroughDelimiter('a/b=b_strikeThrough*c/b_strikeThrough');
+
+
+function replaceStrikeThroughDelimiter_2(equation) {
+	console.log('\nreplaceStrikeThroughDelimiter_2 - equation 1: ' + equation);
+
+	var mArr = equation.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
+
+	var term;
+
+	if (mArr !== null){
+		for (var n in mArr) {
+			term = mArr[n].replace('_strikeThrough', ''); // Remove '_strikeThrough'
+			term = poseEquation(term);
+			equation = equation.replace(mArr[n], '\\cancel{'+term+'}');
+		}
+	}
+
+	console.log('replaceStrikeThroughDelimiter_2 - equation 2: ' + equation);
+
+	return equation;
+}
+
+
+// ADDED 14/6-2017:
+// When the MathJax \cancel{} command is used, the following bug appears: the cancel-linje is very small and does not fit the term it is supposed to cancel out.
+// This function corrects the bug by making the slanted line in the SVG picture larger anf ajust the start and end points of the line.
+function bugfix_strikeThrough() {
+	console.log('\nbugfix_strikeThrough - CALLED');
+
+	var width, height, html, pos, pos_begin, pos_end, str_begin, str_end; 
+	$('.mjx-menclose').each(function(index, element) { 
+		width = $(element ).width();
+		height = $(element ).height();
+		console.log('bugfix_strikeThrough - width: ' + width + ', height: ' + height + ', index: ' + index);
+
+		// IMPORTANT: 
+		// we can NOT refrence the line-tag by $(element + ' line' ).attr('x1'), so we 
+		// need to do string manipulation to alter attributes x2 and y1 of the line-tag.
+		if ((width != 0) || (height != 0)) {
+			html = $(element).html();
+			console.log('bugfix_strikeThrough - html 1: ' + html + ', typeof(): ' + typeof(html));
+			
+			pos = html.indexOf('<line ');
+			pos_begin = html.indexOf('y1="', pos)+4;
+			pos_end = html.indexOf('"', pos_begin);
+
+			str_begin = html.substring(0, pos_begin);
+			str_end = html.substring(pos_end);
+
+			html = str_begin+height+'px'+str_end;  // <----- 'y1' = height + 'px'
+			console.log('bugfix_strikeThrough - html 2: ' + html );
+
+			pos = html.indexOf('<line ');
+			pos_begin = html.indexOf('x2="', pos)+4;
+			pos_end = html.indexOf('"', pos_begin);
+
+			str_begin = html.substring(0, pos_begin);
+			str_end = html.substring(pos_end);
+
+			html = str_begin+width+'px'+str_end;  // <----- 'x2' = width + 'px'
+			console.log('bugfix_strikeThrough - html 3: ' + html );
+
+			$(element).html(html);
+		}
+	});
+}
+
+
+// var Tre = new RegExp(RegExp.quote(str1), "g");
+
+
+// DESCRIPTION:
+// This function returns the position of "operator + reducingTerm". If none is found "-1" is returned (just like the ".indexOf()" operator)
+// This function is similar to the first part of performStrikeThrough().
+function posOfOperatorAndreducingTerm(equationSide, operator, reducingTerm) {
+	console.log('\nposOfOperatorAndreducingTerm - equationSide: ' + equationSide + ', operator: ' + operator + ', reducingTerm: ' + reducingTerm);
+	var pos_begin = null, pos_end = null;
+	var opBefore = null, opEnd = null;
+
+	// var pos = equationSide.indexOf(inversOpsLookup[inverseOperator]+reducingTerm);
+
+	// var pos = equationSide.indexOf(reducingTerm);
+	
+	var opArr = equationSide.match(/(\+|\-|\*|\/)/g);
+	console.log('posOfOperatorAndreducingTerm - opArr: ' + opArr);
+
+	var delimEquationSide = equationSide;
+	for (var n in opArr) {
+		delimEquationSide = delimEquationSide.replace(opArr[n], '#');
+	}
+	console.log('posOfOperatorAndreducingTerm - delimEquationSide: ' + delimEquationSide);
+
+	var varArr = delimEquationSide.split('#');
+
+	var len = opArr.length-1;
+
+	var pos = -1;
+	for (var n in opArr) {  // Loop over opArr, since opArr.length = varArr.length - 1    opArr[n]  varArr[n]  reducingTerm
+		var startOp = (0<n)? opArr[parseInt(n)-1] : '';
+		var endOp = (n<len)? opArr[parseInt(n)+1] : '';
+		console.log('posOfOperatorAndreducingTerm - startOp: ' + startOp + ', endOp: ' + endOp);
+
+		if (n == 0) {
+			console.log('posOfOperatorAndreducingTerm - A0');
+
+			if (((operator == '+') || (operator == '-') || (operator == '*')) && (varArr[n] == reducingTerm) ) {
+				console.log('posOfOperatorAndreducingTerm - A1');
+				return 0;
+			}
+		}
+
+		if ((0<n) && (n<len)){
+			if (startOp+varArr[n] == operator+reducingTerm) {
+				console.log('posOfOperatorAndreducingTerm - A3');
+				pos = equationSide.indexOf(startOp+reducingTerm+endOp) + 1;
+			}
+		}
+
+		if (n == len) { 
+			if ((operator == opArr[n]) && (varArr[n+1] == reducingTerm)) {
+				return lastIndexOf(reducingTerm);
+			}
+		}
+	}
+	console.log('posOfOperatorAndreducingTerm - pos: ' + pos);
+
+	return pos;
+}
+posOfOperatorAndreducingTerm('b*c/b', '/', 'b');
+posOfOperatorAndreducingTerm('b*c/b', '*', 'b');
+posOfOperatorAndreducingTerm('b/b*c', '*', 'b');
+posOfOperatorAndreducingTerm('c*b/b', '*', 'b');
+
+
+// The purpose of this function is to perform the operation: a/b = b*c/b  --->  a/b = c
+// The over-all strategy is:
+// 		if 	a/b = b*c/b  ---->  a/b = b*c,   via removeInverseOperatorAndReducingTermFromEquationSide (on each equationSide)
+// 		then	a/b = b*c  ---->  a/b = c , via reduceTargetSide_3 (on each equationSide)
+function reduceEquation(equation, inverseOperator, reducingTerm) {  // Added 19/5-2017
+	console.log('\nreduceEquation - equation: ' + equation);
+
+	var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};	
+
+	var leftSide, rightSide, parenthesisArr, pos, nominator, denominator, mem;
+	equation = equation.replace(/ /g, '');
+	console.log('reduceEquation - equation: ' + equation);
+
+	var equationArr = equation.split('=');
+	leftSide = equationArr[0];
+	rightSide = equationArr[1];
+
+	// ==================
+	// 		leftSide:
+	// ==================
+	var pArr = sc.outerParenthesisBound(leftSide);
+	console.log('reduceEquation - pArr: ' + JSON.stringify(pArr));
+
+	var pObj = sc.returnParenthesisObj_formula(leftSide, pArr, reducingTerm);   
+	console.log('reduceEquation - pObj: ' + JSON.stringify(pObj)); 
+
+	leftSide = pObj.formula_mod;
+	parenthesisArr = pObj.parenthesisArr;
+
+	// If TequationSide = a#x@x  OR  x#a@x , where # = +,-,*,/  AND  @ = -,+,/,*  (# an @ being inverse operations) then -----> a#x  OR  x#a
+	if ((leftSide.indexOf(inverseOperator+reducingTerm) !== -1) && 
+		((leftSide.indexOf(inversOpsLookup[inverseOperator]+reducingTerm) !== -1) || (leftSide.indexOf(reducingTerm) == 0)) ) {
+			console.log('reduceEquation - A0');
+
+			console.log('reduceEquation - leftSide 0: ' + leftSide);
+
+			leftSide = removeInverseOperatorAndReducingTermFromEquationSide(leftSide, inverseOperator, reducingTerm);
+			console.log('reduceEquation - leftSide 1: ' + leftSide);
+
+			leftSide = sc.reduceTargetSide_3(leftSide, inverseOperator, reducingTerm);
+			console.log('reduceEquation - leftSide 2: ' + leftSide);
+	}
+
+	for (var n in parenthesisArr) {
+		leftSide = leftSide.replace('#'+n+'#', parenthesisArr[n]);
+	}
+
+	// If TequationSide = a*x/(x*b)  OR  x*a/(x*b) , then -----> a*x/b  OR  x*a/b
+	if ((inverseOperator = '/') || (inverseOperator = '*')) {
+		console.log('reduceEquation - A1');
+
+		if (parenthesisArr.length == 1) { // If there is only one parenthesis...
+			console.log('reduceEquation - A2');
+
+			if (parenthesisArr[0].match(/(\+|\-|\/)/g) === null) { // If "+", "-" og "/" is NOT present... (NOTE: .match() returns "null" if nothing i matched).
+				console.log('reduceEquation - A3');
+
+				pos = equationArr[0].indexOf('/(');
+				if (pos !== -1) { // If "/(" is found...  NOTE: equationArr[0] is the original leftSide WITH parenthesis...
+					console.log('reduceEquation - A4');
+
+					nominator = equationArr[0].substring(0, pos);
+					denominator = equationArr[0].substring(pos+1);
+					console.log('reduceEquation - nominator: ' + nominator + ', denominator: ' + denominator + ', reducingTerm: _' + reducingTerm + '_');
+
+					if ((nominator.match(/(\+|\-|\/)/g) === null) && (nominator.indexOf(reducingTerm)!==-1) && // If +,-,/ is NOT present in nominator AND reducingTerm is present...
+						(denominator.match(/(\+|\-|\/)/g) === null) && (denominator.indexOf(reducingTerm))!==-1) {  // If +,-,/ is NOT present in denominator AND reducingTerm is present...
+							console.log('reduceEquation - A5');
+
+							mem = nominator;  // This performs removal of one reducingTerm AND one operator once...
+							nominator = nominator.replace('*'+reducingTerm+'*', '*');
+							nominator = (mem == nominator)? nominator.replace('*'+reducingTerm, '') : nominator;
+							nominator = (mem == nominator)? nominator.replace(reducingTerm+'*', '') : nominator;  // Remove reducingTerm and replace any '**' with '*'...
+							nominator = (mem == nominator)? nominator.replace(reducingTerm, '1') : nominator;  // If no other operators are present, then replace with 1...
+							
+							mem = denominator;  // This performs removal of one reducingTerm AND one operator once...
+							denominator = denominator.replace('*'+reducingTerm+'*', '*');
+							denominator = (mem == denominator)? denominator.replace('*'+reducingTerm, '') : denominator;
+							denominator = (mem == denominator)? denominator.replace(reducingTerm+'*', '') : denominator;
+
+							if (denominator.match(/(\+|\-|\/|\*)/g) === null) {	// If no other operators are present, e.g. if we have the case a*x/(b), then ----> a*x/b
+								console.log('reduceEquation - A6');
+								denominator = sc.removeOuterParenthesisAroundNonSpecialTerms(denominator);
+							}
+					}
+
+					leftSide = nominator+'/'+denominator; 
+					console.log('reduceEquation - leftSide 1: ' + leftSide);
+				}
+			}
+		}
+	}
+	console.log('reduceEquation - leftSide 2: ' + leftSide);
+	
+
+	// ==================
+	// 		rightSide:
+	// ==================
+	var pArr = sc.outerParenthesisBound(rightSide);
+	console.log('reduceEquation - pArr: ' + JSON.stringify(pArr));
+
+	var pObj = sc.returnParenthesisObj_formula(rightSide, pArr, reducingTerm);   
+	console.log('reduceEquation - pObj: ' + JSON.stringify(pObj)); 
+
+	rightSide = pObj.formula_mod;
+	parenthesisArr = pObj.parenthesisArr;
+
+	// If TequationSide = a#x@x  OR  x#a@x , where # = +,-,*,/  AND  @ = -,+,/,*  (# an @ being inverse operations) then -----> a#x  OR  x#a
+	if ((rightSide.indexOf(inverseOperator+reducingTerm) !== -1) && 
+		((rightSide.indexOf(inversOpsLookup[inverseOperator]+reducingTerm) !== -1) || (rightSide.indexOf(reducingTerm) == 0)) ) {
+			console.log('reduceEquation - A7');
+
+			console.log('reduceEquation - rightSide 0: ' + rightSide);
+
+			rightSide = removeInverseOperatorAndReducingTermFromEquationSide(rightSide, inverseOperator, reducingTerm);
+			console.log('reduceEquation - rightSide 1: ' + rightSide);
+
+			rightSide = sc.reduceTargetSide_3(rightSide, inverseOperator, reducingTerm);
+			console.log('reduceEquation - rightSide 2: ' + rightSide);
+	}
+
+	for (var n in parenthesisArr) {
+		rightSide = rightSide.replace('#'+n+'#', parenthesisArr[n]);
+	}
+
+	// If TequationSide = a*x/(x*b)  OR  x*a/(x*b) , then -----> a*x/b  OR  x*a/b
+	if ((inverseOperator = '/') || (inverseOperator = '*')) {
+		console.log('reduceEquation - A8');
+
+		if (parenthesisArr.length == 1) { // If there is only one parenthesis...
+			console.log('reduceEquation - A9');
+
+			console.log('reduceEquation - parenthesisArr: ' + JSON.stringify(parenthesisArr[0]));
+
+			if (parenthesisArr[0].match(/(\+|\-|\/)/g) === null) { // If "+", "-" og "/" is NOT present... (NOTE: .match() returns "null" if nothing i matched).
+				console.log('reduceEquation - A10');
+
+				pos = equationArr[1].indexOf('/(');
+				if (pos !== -1) { // If "/(" is found...  NOTE: equationArr[1] is the original rightSide WITH parenthesis...
+					console.log('reduceEquation - A11');
+
+					nominator = equationArr[1].substring(0, pos);
+					denominator = equationArr[1].substring(pos+1);
+					console.log('reduceEquation - nominator: ' + nominator + ', denominator: ' + denominator + ', reducingTerm: ' + reducingTerm);
+
+					if ((nominator.match(/(\+|\-|\/)/g) === null) && (nominator.indexOf(reducingTerm)!==-1) && // If +,-,/ is NOT present in nominator AND reducingTerm is present...
+						(denominator.match(/(\+|\-|\/)/g) === null) && (denominator.indexOf(reducingTerm)!==-1)) {  // If +,-,/ is NOT present in denominator AND reducingTerm is present...
+							console.log('reduceEquation - A12');
+
+							mem = nominator;  // This performs removal of one reducingTerm AND one operator once...
+							nominator = nominator.replace('*'+reducingTerm+'*', '*');
+							nominator = (mem == nominator)? nominator.replace('*'+reducingTerm, '') : nominator;
+							nominator = (mem == nominator)? nominator.replace(reducingTerm+'*', '') : nominator;  // Remove reducingTerm and replace any '**' with '*'...
+							nominator = (mem == nominator)? nominator.replace(reducingTerm, '1') : nominator;  // If no other operators are present, then replace with 1...
+							
+							mem = denominator; // This performs removal of one reducingTerm AND one operator once...
+							denominator = denominator.replace('*'+reducingTerm+'*', '*');
+							denominator = (mem == denominator)? denominator.replace('*'+reducingTerm, '') : denominator;
+							denominator = (mem == denominator)? denominator.replace(reducingTerm+'*', '') : denominator;
+
+							if (denominator.match(/(\+|\-|\/|\*)/g) === null) {	// If no other operators are present, e.g. if we have the case a*x/(b), then ----> a*x/b
+								console.log('reduceEquation - A13');
+								denominator = sc.removeOuterParenthesisAroundNonSpecialTerms(denominator);
+							}
+					}
+
+					rightSide = nominator+'/'+denominator; 
+					console.log('reduceEquation - rightSide 1: ' + rightSide);
+				}
+			}
+		}
+	}
+	console.log('reduceEquation - rightSide 2: ' + rightSide);
+
+
+	// rightSide = removeInverseOperatorAndReducingTermFromEquationSide(equationArr[1], inverseOperator, reducingTerm);
+	// console.log('reduceEquation - leftSide 1: ' + leftSide + ', rightSide1 : ' + rightSide);
+
+	// rightSide = sc.reduceTargetSide_3(rightSide, inverseOperator, reducingTerm);
+	// console.log('reduceEquation - leftSide 2: ' + leftSide + ', rightSide2 : ' + rightSide);
+
+
+	// equation:
+	// =========
+	equation = leftSide + '=' + rightSide;
+	console.log('reduceEquation - equation: ' + equation);
+
+	equation = sc.removeOnesAndZeros(equation);
+	console.log('reduceEquation - equation 2: ' + equation);
+
+	return equation;
+}
+// console.log("reduceEquation('a/b=b*c/b', '/', 'b'): " + reduceEquation('a/b=b*c/b', '/', 'b'));
+// console.log("reduceEquation('a/b=(b+c)/b', '/', 'b'): " + reduceEquation('a/b=(b+c)/b', '/', 'b'));
+// console.log("reduceEquation('a*b/b=c*b', '/', 'b'): " + reduceEquation('a*b/b=c*b', '/', 'b'));  // <-----  22/5-2017.  FEJL: returnere a = b, KORREKT: a = c*b , OK 30/5-2017
+// console.log("reduceEquation('b/b=b*c', '/', 'b'): " + reduceEquation('b/b=b*c', '/', 'b'));
+// console.log("reduceEquation('1*a/a=c*b*a/(a*a)', '/', 'a'): " + reduceEquation('1*a/a=c*b*a/(a*a)', '/', 'a'));  // <-----  22/5-2017.  FEJL: returnere a = c*b*a/(a*a), KORREKT: a = c*b*a/a , OK 30/5-2017
+
+console.log('Match-test 2: ' + 'a*b*c'.match(/(\+|\-|\/)/g));
+console.log('Match-test 4: ' + 'a'.match(/(\+|\-|\/)/g));
+console.log('Index-test 1: ' + 'a'.indexOf('a'));
+
+
+// VIGTIGT:
+// ========
+// 29/5-2017: Denne funktion behøver ikke at returnere reducedEquation! - men blot suggestedReducingTerm!
+//
+// This function only acts on equations in the form of a fraction, eg. a*b*c/(a*d), where "a" is the therm (suggestedReducingTerm) that can be reduced from both nominator and denominator.
+// This function returns both the suggestedReducingTerm and the reduced equation. For example:
+// 		equation: "a*b*c/(a*d*e)"  ---->   {reducedEquation: "b*c/(d*e)", suggestedReducingTerm: "a"}
+// 		equation: "a*b*c/(a*d)"  ---->   {reducedEquation: "b*c/d", suggestedReducingTerm: "a"}  <----  NOTE: the removed parenthesis!
+function returnSuggestedReducingTermInFraction(equationSide) {
+	console.log('\nreturnSuggestedReducingTermInFraction - equationSide: ' + equationSide);
+
+	var suggestedReducingTerm = null;
+
+	// var reducingTerm = 'a';
+
+	// var pArr = sc.outerParenthesisBound(equationSide);
+	// console.log('returnSuggestedReducingTermInFraction - pArr: ' + JSON.stringify(pArr));
+
+	// var pObj = sc.returnParenthesisObj_formula(equationSide, pArr, reducingTerm);   
+	// console.log('returnSuggestedReducingTermInFraction - pObj: ' + JSON.stringify(pObj)); 
+
+	// TequationSide = pObj.formula_mod;
+	// parenthesisArr = pObj.parenthesisArr;
+
+
+	pObj = sc.returnParenthesisObj_formula_mod(equationSide);
+	console.log('returnSuggestedReducingTermInFraction - pObj: ' + JSON.stringify(pObj)); 
+
+	TequationSide = pObj.equationSide_mod;
+	parenthesisArr = pObj.parenthesisArr;
+
+	// Check that the equationSide is in the form of a fraction:
+	// =========================================================
+	if (TequationSide.match(/(\+|\-)/g) === null) { // If there are no "+" and "-" operators...
+		console.log('returnSuggestedReducingTermInFraction - A0');
+
+		var numOfFractions = TequationSide.split('/').length-1;
+		if (numOfFractions == 1) {  // ...and if there is excatly one "/" operator present, then equationSide
+			console.log('returnSuggestedReducingTermInFraction - A1');
+
+			var pos = TequationSide.indexOf('/');
+			var nominator = TequationSide.substring(0, pos);
+			var denominator = TequationSide.substring(pos+1);
+			console.log('returnSuggestedReducingTermInFraction - denominator : ' + denominator);
+
+			var nominatorArr = nominator.split('*');
+			console.log('returnSuggestedReducingTermInFraction - nominatorArr 1: ' + nominatorArr);
+			nominatorArr = nominatorArr.filter( onlyUnique );
+			console.log('returnSuggestedReducingTermInFraction - nominatorArr 2: ' + nominatorArr);
+
+			// denominator = denominator.split('*')[0];  // This deals with the case: a*b*c/(a*b)*e  --->  denominator = (a*b)
+			// console.log('returnSuggestedReducingTermInFraction - denominator : ' + denominator);
+
+			// if ((denominator.substr(0,1) == '#') && (denominator.substr(denominator.length-1,1) == '#')) {  // This matches a parenthesis in the denominator 
+			if (denominator.substr(0,1) == '#') {  // This matches a parenthesis in the denominator. equationSide can be of the form a*b/(a*c) OR  a*b/(a*c)*k
+				var pNum = denominator.match(/#\d+#/g)[0]; // This selects the parenthesis number (e.g. "#2#") in denominator.
+				console.log('returnSuggestedReducingTermInFraction - pNum: ' + pNum);
+				// if (pNum == denominator) {  // If this is the case, then equationSide is a fraction With a parenthsis in the denominator like a*b/(a*c)*k
+				if (denominator.substr(0, pNum.length) == pNum) {  // If this is the case, then equationSide is a fraction With a parenthsis in the denominator like a*b/(a*c)*k
+					console.log('returnSuggestedReducingTermInFraction - A2');
+
+					pNum = parseInt(pNum.replace(/#/g, ''));
+					var parenthesis = parenthesisArr[pNum];
+					console.log('returnSuggestedReducingTermInFraction - parenthesis: ' + parenthesis);
+
+					if (parenthesis.match(/(\+|\-|\/)/g) === null) { // If there no other operators than the "*" operator in the denominator parenthesis... 
+						console.log('returnSuggestedReducingTermInFraction - A3');
+
+						console.log('returnSuggestedReducingTermInFraction - parenthesis 0: ' + parenthesis);
+						parenthesis = parenthesis.substring(1, parenthesis.length-1);  // Remove surrounding parenthesis
+						console.log('returnSuggestedReducingTermInFraction - parenthesis 1: ' + parenthesis);
+
+						parenthesis = parenthesis.replace(/\(/g, '').replace(/\)/g, '');  // Remove any combined parenthesis in the denominator, eg: (a*b)*(c*d) ---> a*b*c*d
+						console.log('returnSuggestedReducingTermInFraction - parenthesis 2: ' + parenthesis);
+
+						var TparenthesisArr = parenthesis.split('*');
+						console.log('returnSuggestedReducingTermInFraction - TparenthesisArr 1: ' + TparenthesisArr);
+						TparenthesisArr = TparenthesisArr.filter( onlyUnique );
+						console.log('returnSuggestedReducingTermInFraction - TparenthesisArr 2: ' + TparenthesisArr);
+
+						for (var n in TparenthesisArr) {
+							if (elementInArray(nominatorArr, TparenthesisArr[n])){
+								console.log('returnSuggestedReducingTermInFraction - A4');
+
+								suggestedReducingTerm = TparenthesisArr[n];
+								break;
+							}
+						}
+					}
+				}
+			} else { // ... else no parenthesis is present in the denominator
+				console.log('returnSuggestedReducingTermInFraction - A5');
+
+				// if (elementInArray(nominatorArr, TparenthesisArr[n])){
+				// 	console.log('returnSuggestedReducingTermInFraction - A5');
+
+				// 	suggestedReducingTerm = TparenthesisArr[n];
+				// 	break;
+				// }
+			}
+		}
+	}
+
+	// find suggestedReducingTerm:
+
+	// return {reducedEquation: "b*c/d", suggestedReducingTerm: "a"}
+
+	console.log('returnSuggestedReducingTermInFraction - suggestedReducingTerm: ' + suggestedReducingTerm);
+
+	return suggestedReducingTerm;
+}
+console.log('returnSuggestedReducingTermInFraction("a*b*c/(a*d*e)"): ' + returnSuggestedReducingTermInFraction("a*b*c/(a*d*e)"));
+console.log('returnSuggestedReducingTermInFraction("a*b*c*(d+e)/(a*d*e)"): ' + returnSuggestedReducingTermInFraction("a*b*c*(d+e)/(a*d*e)"));
+console.log('returnSuggestedReducingTermInFraction("a*b*c*(d+e)/((a*d*e)+(a*d*e))"): ' + returnSuggestedReducingTermInFraction("a*b*c*(d+e)/((a*d*e)+(a*d*e))"));
+console.log('returnSuggestedReducingTermInFraction("a*b*c*(d+e)/((a*d*e)*(d*e*f))"): ' + returnSuggestedReducingTermInFraction("a*b*c*(d+e)/((a*d*e)*(d*e*f))"));
+console.log('returnSuggestedReducingTermInFraction("a*b*c/(a*d*e)*s"): ' + returnSuggestedReducingTermInFraction("a*b*c/(a*d*e)*s"));
+console.log('returnSuggestedReducingTermInFraction("a*b*c/a*s"): ' + returnSuggestedReducingTermInFraction("a*b*c/a*s"));   
+console.log('returnSuggestedReducingTermInFraction("a*b/(b*b*b)"): ' + returnSuggestedReducingTermInFraction("a*b/(b*b*b)"));
+console.log('returnSuggestedReducingTermInFraction("c*b/(b*b)"): ' + returnSuggestedReducingTermInFraction("c*b/(b*b)"));  // <---- FEJL: returnere "null", skal returnerer "b"
+console.log('returnSuggestedReducingTermInFraction("c*b/(b*d)"): ' + returnSuggestedReducingTermInFraction("c*b/(b*d)"));
+
+console.log('split-test: ' + String('a*s*d'.split('/').length-1));
+console.log('match-test 3: ' + '#12##13#'.match(/#\d+#/g)[0]);
+
+console.log('split-test 2x: ' + 'a'.split('*'));
+
+
+
+// // This function is a version of returnParenthesisObj_formula(formula, pArr, reducingTerm) where "pArr" AND "reducingTerm" is not needed.
+// function returnParenthesisObj_formula_mod(equationSide) {
+// 	console.log('\nreturnParenthesisObj_formula_mod: - equationSide: ' + equationSide);
+
+// 	pArr = sc.outerParenthesisBound(equationSide);
+
+// 	var parenthesis, equationSide_mod, parenthesisArr = [];
+// 	equationSide_mod = equationSide;
+// 	for (var n in pArr) {
+// 		parenthesis = equationSide.substring(pArr[n].left, pArr[n].right+1);
+// 		parenthesisArr.push(parenthesis);
+// 		equationSide_mod = equationSide_mod.replace(parenthesis, '#'+n+'#');
+// 	}
+// 	console.log('returnParenthesisObj_formula_mod: - equationSide_mod: ' + equationSide_mod);
+
+// 	return {equationSide_mod: equationSide_mod, parenthesisArr: parenthesisArr, pArr: pArr};   // {"formula_mod":"c*b/(b*d)","parenthesisArr":["(b*d)"]}
+// } 
+// console.log('returnParenthesisObj_formula_mod("a*b*c*(d+e)/(a*d*e)*(d*e*f)"): ' + JSON.stringify( returnParenthesisObj_formula_mod("a*b*c*(d+e)/(a*d*e)*(d*e*f)")) );
+// console.log('returnParenthesisObj_formula_mod("c*b/(b*d)"): ' + JSON.stringify( returnParenthesisObj_formula_mod("c*b/(b*d)")) );
+// console.log('returnParenthesisObj_formula_mod("a*b*c/a*s"): ' + JSON.stringify( returnParenthesisObj_formula_mod("a*b*c/a*s")) );
+// console.log('returnParenthesisObj_formula_mod("a*b/(b*b*b)"): ' + JSON.stringify( returnParenthesisObj_formula_mod("a*b/(b*b*b)")) );
+// console.log('returnParenthesisObj_formula_mod("c*b/(b*b)"): ' + JSON.stringify( returnParenthesisObj_formula_mod("c*b/(b*b)")) );
+// console.log('returnParenthesisObj_formula_mod("c*b/(b*d)"): ' + JSON.stringify( returnParenthesisObj_formula_mod("c*b/(b*d)")) );
+
+
+
+// The purpose of this function is to perform the following:  a/b = b*c/b  ---->  a/b = b*c,   on each equationSide
+function removeInverseOperatorAndReducingTermFromEquationSide(equationSide, inverseOperator, reducingTerm) {
+
+	console.log('\nremoveInverseOperatorAndReducingTermFromEquationSide - equationSide: ' + equationSide + ', inverseOperator: ' + inverseOperator + ', reducingTerm: ' + reducingTerm);
+
+	var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};	
+
+	var pArr = sc.outerParenthesisBound(equationSide);
+	console.log('removeInverseOperatorAndReducingTermFromEquationSide - pArr: ' + JSON.stringify(pArr));
+
+	var pObj = sc.returnParenthesisObj_formula(equationSide, pArr, reducingTerm);   
+	console.log('removeInverseOperatorAndReducingTermFromEquationSide - pObj: ' + JSON.stringify(pObj)); 
+
+	var TequationSide = pObj.formula_mod;
+	var parenthesisArr = pObj.parenthesisArr;
+
+	// If TequationSide = a#x@x  OR  x#a@x , where # = +,-,*,/  AND  @ = -,+,/,*  (# an @ being inverse operations) then -----> a#x  OR  x#a. ALSO: x/x ---> x
+	if ((TequationSide.indexOf(inverseOperator+reducingTerm) !== -1) && 
+		((TequationSide.indexOf(inversOpsLookup[inverseOperator]+reducingTerm) !== -1) || (TequationSide.indexOf(reducingTerm) == 0)) ) {
+			console.log('removeInverseOperatorAndReducingTermFromEquationSide - A0'); 
+			TequationSide = TequationSide.replace(inverseOperator+reducingTerm, '');
+	}
+	console.log('removeInverseOperatorAndReducingTermFromEquationSide - TequationSide: ' + TequationSide);
+
+	return TequationSide;
+}
+// console.log("removeInverseOperatorAndReducingTermFromEquationSide('b*c/b', '/', 'b'): " + removeInverseOperatorAndReducingTermFromEquationSide('b*c/b', '/', 'b'));
+// console.log("removeInverseOperatorAndReducingTermFromEquationSide('c*b/b', '/', 'b'): " + removeInverseOperatorAndReducingTermFromEquationSide('c*b/b', '/', 'b'));
+// console.log("removeInverseOperatorAndReducingTermFromEquationSide('b/b', '/', 'b'): " + removeInverseOperatorAndReducingTermFromEquationSide('b/b', '/', 'b'));
+
+
+// NEDENSTÅENDE TEST_BLOK ER MÅSKE IKKE NØDVENDIG:
+// console.log("removeInverseOperatorAndReducingTermFromEquationSide('b/b', '/', 'b'): " + removeInverseOperatorAndReducingTermFromEquationSide('b/b', '/', 'b'));
+// console.log("removeInverseOperatorAndReducingTermFromEquationSide('b-b', '-', 'b'): " + removeInverseOperatorAndReducingTermFromEquationSide('b-b', '/', 'b'));
+
 
 console.log('CONVERT: ' + Number('2e-3'));
 console.log('CONVERT: ' + Number('4.867E-7').toPrecision(21));  // /^([+-])?(\d+)\.?(\d*)[eE]([+-]?\d+)$/
 console.log('CONVERT: ' + '4.867E-7'.match(/^([+-])?(\d+)\.?(\d*)[eE]([+-]?\d+)$/));
+
+console.log('Match-test: ' + 'a*b/c+d-e'.match(/(\*|\/|\+|\-)/g));
 
 
 function toDecStr(num){
@@ -797,6 +1440,94 @@ toDecStr('-3.01e10');
 //           |         |         |         |         |
 
 
+// Added 13/6-2017:
+// This function converts some latex-markup to HTML by MathJax. It does so by using a placeholder in the HTML page-template.
+// If a placeholder-id is given, the latex is first copied into the placeholder and then MathJax is applied and the HTML result is lastly returned by invokeMathJax().
+// IMPORTANT: the placeholderId has to exist in the DOM! when the invokeMathJax() is called!
+function invokeMathJax(parentId, latex, placeholderId) {
+
+	$(placeholderId).html(latex);  // Add the equation to the hidden container
+
+	MathJax.Hub.Queue(["Typeset",MathJax.Hub,$(placeholderId)[0]]);
+
+	MathJax.Hub.Queue(function (){
+		return $(placeholderId).html();  // Copy the equation from the hidden container to the visible container.
+	});
+	
+	return 'invokeMathJax - TEST';
+}
+// invokeMathJax('test_parentId', 'TEST', 'test_placeholderId');
+
+
+// ADDED 13/6-2017:
+// This has a "copy" of the "selection" of left/right side form findNextOperator() in solver.js
+function isEquationSolved(formula) {  
+	console.log('\nisEquationSolved - formula: ' + formula);
+
+	var numOfVars;
+
+	var formulaArr = formula.split('=');
+
+	var NumOfTargets_leftSide = formulaArr[0].split(fObj.target).length-1; 	
+	var NumOfTargets_rightSide = formulaArr[1].split(fObj.target).length-1;	
+	console.log('isEquationSolved - NumOfTargets_leftSide: ' + NumOfTargets_leftSide + ', NumOfTargets_rightSide: ' + NumOfTargets_rightSide);
+
+	// if (NumOfTargets_leftSide == NumOfTargets_rightSide) {  	// <--- ADDED 9/6-2017  // COMMENTED OUT 13/6-2017
+	// 	alert('KRITISK FEJL FRA "ligning.js" - isEquationSolved(formula): Ligningen har ingen løsning da NumOfTargets_leftSide = NumOfTargets_rightSide = ' + NumOfTargets_rightSide);
+	// 	return 0;
+	// }
+
+	if (NumOfTargets_leftSide > NumOfTargets_rightSide) {  // If eg. x*x*a = x*b  --->  x = a/b
+		console.log('isEquationSolved - A0');
+		numOfVars = sc.returnParenthesisObj_formula_mod(formulaArr[0]).equationSide_mod.replace(/(\+|\-|\*|\/)/g, '@').split('@').length;
+	} else {
+		console.log('isEquationSolved - A1');
+		numOfVars = sc.returnParenthesisObj_formula_mod(formulaArr[1]).equationSide_mod.replace(/(\+|\-|\*|\/)/g, '@').split('@').length;
+	}
+	console.log('isEquationSolved - numOfVars: ' + JSON.stringify( numOfVars ));
+
+	if (numOfVars == 1) {
+		return true;
+	}
+
+	return false;
+}
+
+// ADDED 13/6-2017:
+// This replaces giveQuestion() in terms of making the student go to the next question OR giving the message that "all questions have been answered" / "equations solved".
+function msg_goToNextEquation_or_finish(formula) {
+	console.log('\nmsg_goToNextEquation_or_finish - formula: ' + formula);
+
+	console.log('msg_goToNextEquation_or_finish - memObj.currentQuestionNo: ' + memObj.currentQuestionNo + ', memObj.numOfquestions: ' + memObj.numOfquestions);
+
+	if (isEquationSolved(formula)) {
+		console.log('msg_goToNextEquation_or_finish - A0');
+		
+		if (memObj.currentQuestionNo+1 < memObj.numOfquestions){
+			console.log('msg_goToNextEquation_or_finish - A1');
+
+			$('.operator').addClass('operator_inactive').removeClass('operator');
+			$('.subHeader').addClass('subHeader_inactive').removeClass('subHeader');
+
+			// microhint($(this), 'Hmmm... er du sikker på det?', true,"red");
+			microhint($('#next'), "<div class='microhint_label_success'>Opgaven er løst <b>korrekt!</b> </div> Klik for at gå til næste opgave ", true, "#000");
+
+			memObj.hasCurrentQuestionBeenAnswered = true; 
+
+			$('#questionCount').text(String(memObj.currentQuestionNo+1) +' ud af '+ memObj.numOfquestions);
+		} else {
+			console.log('msg_goToNextEquation_or_finish - A2');
+
+			UserMsgBox("body", '<h3>Du har<span class="label label-success">korrekt</span> besvaret alle opgaverne!</h3><p>Klik denne besked væk for at prøve igen.</p>');
+	    	$('.MsgBox_bgr').unbind();
+	    	$('#UserMsgBox').unbind();
+	    	$('.MsgBox_bgr').addClass('MsgBox_reload');
+	    	$('#UserMsgBox').addClass('MsgBox_reload');
+		}
+	}
+}
+
+
 function suggestReducingTerm(formula){
 	formula = formula.replace(/ /g, '');
 	console.log('\nsuggestReducingTerm - formula: ' + formula);
@@ -823,25 +1554,44 @@ function suggestReducingTerm(formula){
 
 
 	if (opObj_targetSide !== null) {
+		console.log('suggestReducingTerm - A0');
 
 		fObj.suggestedReducingTerm = opObj_targetSide.term;
+		fObj.suggestedinverseOperator = opObj_targetSide.op;
+		// fObj.suggested
+
+		console.log('suggestReducingTerm - fObj: ' + JSON.stringify(fObj));
 
 		if ((opObj_targetSide.op == '+') || (opObj_targetSide.op == '-')) {
-			return '<div class="reduceBtn btn btn-info">Reducer med '+convertTermsToLatexTerms( opObj_targetSide.term )+'</div>';
+			console.log('suggestReducingTerm - A1');
+
+			return '<div class="reduceBtn btn btn-info">Reducer med \\('+convertTermsToLatexTerms( opObj_targetSide.term )+'\\)</div>';
+			// return '<div class="reduceBtn btn btn-info">Reducer med '+invokeMathJax('.reduceBtn', convertTermsToLatexTerms( opObj_targetSide.term ), '#reduceBtn_hidden')+'</div>';
 		}
 
 		if ((opObj_targetSide.op == '*') || (opObj_targetSide.op == '/')) {
-			return '<div class="reduceBtn btn btn-info">Forkort med '+convertTermsToLatexTerms( opObj_targetSide.term )+'</div>';
+			console.log('suggestReducingTerm - A2');
+
+			return '<div class="reduceBtn btn btn-info">Forkort med \\('+convertTermsToLatexTerms( opObj_targetSide.term )+'\\)</div>';
+			// return '<div class="reduceBtn btn btn-info">Reducer med '+invokeMathJax('.reduceBtn', convertTermsToLatexTerms( opObj_targetSide.term ), '#reduceBtn_hidden')+'</div>';
 		}
 	} else if (opObj_nonTargetSide !== null) {
+		console.log('suggestReducingTerm - A3');
 
 		fObj.suggestedReducingTerm = opObj_nonTargetSide.term;
+		fObj.suggestedinverseOperator = opObj_nonTargetSide.op;
+
+		console.log('suggestReducingTerm - fObj: ' + JSON.stringify(fObj));
 
 		if ((opObj_nonTargetSide.op == '+') || (opObj_nonTargetSide.op == '-')) {
-			return '<div class="reduceBtn btn btn-info">Reducer med '+convertTermsToLatexTerms( opObj_nonTargetSide.term )+'</div>';
+			console.log('suggestReducingTerm - A4');
+
+			return '<div class="reduceBtn btn btn-info">Reducer med \\('+convertTermsToLatexTerms( opObj_nonTargetSide.term )+'\\)</div>';
 		}
 
 		if ((opObj_nonTargetSide.op == '*') || (opObj_nonTargetSide.op == '/')) {
+			console.log('suggestReducingTerm - A5');
+
 			// return '<div class="reduceBtn btn btn-info">Forkort med '+opObj_nonTargetSide.term+'</div>';
 			return '<div class="reduceBtn btn btn-info">Forkort med \\('+convertTermsToLatexTerms( opObj_nonTargetSide.term )+'\\)</div>';
 		}
@@ -1008,6 +1758,8 @@ console.log('suggestReducingTerm > suggestReducingTerm_side  - TtargetSide_mod 2
 			reducingTermsObj_final.push(reducingTermsObj[n]); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
 		}
 	}
+	console.log('\nsuggestReducingTerm > suggestReducingTerm_side - END');
+
 	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTerms_final: ' + JSON.stringify(reducingTerms_final));
 	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTermsObj_final: ' + JSON.stringify(reducingTermsObj_final)); // <------ IMPORTANT: This might not be nessary - just use redTermsObj instead!
 
@@ -1030,7 +1782,23 @@ console.log('suggestReducingTerm > suggestReducingTerm_side  - TtargetSide_mod 2
 			reducingTermMem = reducingTerms_final[n];
 		}
 	}
-	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTermMem: ' + JSON.stringify(reducingTermMem));
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTermMem 1: ' + JSON.stringify(reducingTermMem));
+
+
+	if (reducingTermMem === null) {
+		console.log('suggestReducingTerm > suggestReducingTerm_side - END - C0');
+
+		console.log('suggestReducingTerm > suggestReducingTerm_side - END - equationSide: ' + equationSide);
+
+		var term = returnSuggestedReducingTermInFraction(equationSide);
+		console.log('suggestReducingTerm > suggestReducingTerm_side - END - term: ' + term);
+
+		if (term !== null) {
+			console.log('suggestReducingTerm > suggestReducingTerm_side - END - C0');
+			reducingTermMem = {op: "/", term: term};  // This is the format that suggestReducingTerm_side returns: eiter "null" OR "{op: operator, term: term}".
+		}
+	}
+	console.log('suggestReducingTerm > suggestReducingTerm_side - END - reducingTermMem 2: ' + JSON.stringify(reducingTermMem));
 
 	return reducingTermMem;
 }
@@ -1115,7 +1883,11 @@ function elementInArray(tArray, element){
 // ====================================================================================================================
 
 
-var memObj = {currentQuestionNo: 0};
+var memObj = {
+				currentQuestionNo: 0, 	// This contain the current question number.
+				solverObj: {},			// All relevant information in "memObj" from solver.js inserted here. <--- maybe this is not a good idea - it will become less clear where this data comes from.
+				hasCurrentQuestionBeenAnswered: false
+			};
 
 function template() {
 
@@ -1132,18 +1904,27 @@ function template() {
 	HTML += '<div id="interface">';
 	HTML += 	'<div id="rightColumn" class="col-xs-12 col-md-6">';
 	HTML += 		'<div id="questionContainer"></div>';
-	HTML += 		'<div id="equationContainer"></div>';
+	HTML += 		'<div id="equationContainer"></div>';   
+	// HTML += 		'<div id="equationContainer" class="fontSize250"></div>';
 	HTML += 		'<div id="equationContainer_hidden"></div>';
+	HTML += 		'<div id="helpContainer_hidden"></div>';
+	HTML += 		'<div id="microhint_hidden"></div>';
+	HTML += 		'<div id="reduceBtn_hidden"></div>';
+	// HTML += 		'<div id="equationContainer_hidden" class="fontSize250"></div>';
+	HTML += 		'<div class="Clear"></div> <div id="nextBtnContainer"><div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span></div>';
 	HTML += 	'</div>';
 	HTML += 	'<div id="leftColumn" class="col-xs-12 col-md-6">'; 
 	// HTML += 		((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered');
 	HTML += 		'<div class="autoLeftSpacer"></div>';
 	HTML += 		'<div id="btnContainer"></div>';
-	// HTML += 		'<div class="Clear"></div> <div id="next" class="btn btn-primary">Næste</div>';
+	// HTML += 		'<div class="Clear"></div> <div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span>';
 	HTML += 		'<div id="reduceBtnContainer"></div>'
 	HTML += 	'</div>';
-	HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\(b\\) i udtrykket </div>';
-	// HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\(b\\) i udtrykket \\(a = b \\cdot c\\) </div>';
+	HTML += '<div class="Clear"></div>';
+	HTML += '<div id="help_complete" class="btn_help btn btn-xs btn-info">Se løsningsforslag</div>';
+	HTML += '<div id="help_now" class="btn_help btn btn-xs btn-info">Hjælp nu</div>';
+	// HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\(b\\) i udtrykket </div>';    							// COMMENTED OUT 7/6-2017
+	// HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\('+jsonData.qObj[memObj.currentQuestionNo].term+'\\) i udtrykket </div>';  // ADDED 7/6-2017
 	HTML += '</div>';
 
 	$('#interfaceContainer').html(HTML);
@@ -1170,19 +1951,23 @@ function giveQuestion() {
 	console.log('giveQuestion - CALLED');
 
 	window.fObj = make_fObj(memObj.currentQuestionNo);
-	console.log('giveQuestion - x - fObj: ' + JSON.stringify(fObj));
+	console.log('giveQuestion - x - fObj 1: ' + JSON.stringify(fObj));
+
+	var solveObj = generateSolution(true);
+	fObj.noOfStepsToCompletion = solveObj.noOfStepsToCompletion;
+	console.log('giveQuestion - x - fObj 2: ' + JSON.stringify(fObj));
 
 	if (memObj.currentQuestionNo < memObj.numOfquestions){
 
 		$('#questionContainer').html(poseQuestion());
 		
-		$('#equationContainer').html(poseEquation());
+		$('#equationContainer').html('$$'+poseEquation(fObj.equation)+'$$');
 
 		// microhint('#equationContainer', poseQuestion(), "red");
 		// microhint('#equationContainer', "TEST HINT", "red");
 
 
-		// $('#micro_hint').html(poseEquation());
+		// $('#micro_hint').html('$$'+poseEquation(fObj.equation)+'$$');
 
 		// MathJax.Hub.Queue(function (){
 		// 	$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
@@ -1197,6 +1982,9 @@ function giveQuestion() {
 
 		var jd = jsonData.qObj[memObj.currentQuestionNo];
 		$('#btnContainer').html(makeBtnOperatorChoises(jd.equation, jd.operators));
+
+		$('#questionCount').text(String(memObj.currentQuestionNo+1) +' ud af '+ memObj.numOfquestions);
+
 		// ++memObj.currentQuestionNo;
 	} else {
 		UserMsgBox("body", '<h4>OBS</h4> Tillykke - du er færdig med alle opgaverne!');
@@ -1385,25 +2173,29 @@ function convertTermsToLatexTerms(equation){
 	}
 	console.log('convertTermsToLatexTerms - termStr_mod: ' + JSON.stringify(termStr_mod));
 
-
-
-
 	return termStr_mod;
 }
+console.log('convertTermsToLatexTerms("a=b/c@"): ' + convertTermsToLatexTerms("a=b/c@"));
+// console.log('convertTermsToLatexTerms("a/b=\\cancel{b}*c/\\cancel{b}"): ' + convertTermsToLatexTerms("a/b=\\cancel{b}*c/\\cancel{b}"));
 
 
 
-function poseEquation() {
+function poseEquation(equation) {
 	// var jq = jsonData.qObj[memObj.currentQuestionNo];
 	// console.log('poseEquation - jq: ' + JSON.stringify(jq));
 
 	// var equation = convertTermsToLatexTerms(jq.equation);
 	// console.log('poseEquation - equation 2: ' + JSON.stringify(equation));
 
-	var equation = convertTermsToLatexTerms(fObj.equation);
+	// console.log('poseEquation - equation 1: ' + fObj.equation);  
+	console.log('poseEquation - equation 1: ' + equation);
+
+	// var equation = convertTermsToLatexTerms(fObj.equation); // <----  COMMENTED OUT 9/5-2017
+	var equation = convertTermsToLatexTerms(equation);		   // <----  ADDED 9/5-2017
 	console.log('poseEquation - equation 2: ' + JSON.stringify(equation));
 
-	equation = '$$'+equationToLatex(equation)+'$$';
+	// equation = '$$'+equationToLatex(equation)+'$$';	// <----  COMMENTED OUT 9/5-2017
+	equation = equationToLatex(equation);				// <----  ADDED 9/5-2017
 	console.log('poseEquation - equation 3: ' + JSON.stringify(equation));
 
 	return equation;
@@ -1508,6 +2300,9 @@ function performOperation(formula, inverseOperator, reducingTerm){
 
 	var reducableFormula = (varSide == 'left')? targetSide_red+'='+nonTargetSide_red : nonTargetSide_red+'='+targetSide_red;
 	console.log('performOperation - reducableFormula: ' + reducableFormula);
+
+	reducableFormula = sc.removeOnesAndZeros(reducableFormula);
+	console.log('performOperation - reducableFormula 2: ' + reducableFormula);
 
 	return reducableFormula;
 }
@@ -1955,25 +2750,162 @@ function returnTermsFromEquation(equation){
 returnTermsFromEquation('a+b+c-d-e-g*H_0*h/f/y');
 
 
+// IMPORTANT:
+// The solution is generated from in the solverClass by a call to sc.isolateTarget( equation ).memObj
+function generateSolution(solveFromTheBeginning) {
+	console.log('\ngenerateSolution - CALLED');
+
+	var jq = jsonData.qObj[memObj.currentQuestionNo];
+	console.log('generateSolution - jq: ' + JSON.stringify(jq));
+
+	var equation = jq.equation;
+	console.log('generateSolution - equation: ' + equation);
+
+	var target = jq.fObj_translate.target;
+	var reducingTerm, count = 0, leftSide, rightSide, nominator, denominator, eqSideStr = '', pos_calc, pos, len;
+
+	var operatorLookup = {'*':'Multiplicer', '/':'Divider', '+':'Adder', '-':'Subtraher'};
+	var reduceLookup = {'*':'Forkort', '/':'Forkort', '+':'Reducer', '-':'Reducer'};
+	var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};
+
+	var solveGuide = '<h1>Løsningsforslag</h1>';
+
+	var sc = Object.create(solverClass);
+	// window.fObj = make_fObj(0);
+	// console.log('generateSolution - x - fObj: ' + JSON.stringify(fObj));
+
+	// The following two lines makes generateSolution give  
+	sc.fObj = {target: target};
+	if (solveFromTheBeginning) {
+		console.log('generateSolution - B0');
+	} else {
+		console.log('generateSolution - B1');
+		console.log('generateSolution - fObj: ' + JSON.stringify( fObj ));
+		equation = fObj.equation;  // This solves the equation from where current the state of the equation - e.g. the studen has altered the equation by performing operations.
+	}
+	sc.isolateTarget(equation);
+
+	if (solveFromTheBeginning) {
+		solveGuide += 'Udgangspunktet for opgaven er isolere ' + ((jq.fObj_translate[target].hasOwnProperty('word'))? jq.fObj_translate[target].word.toLowerCase() : '') + ' \\('+jq.fObj_translate[target].sym+'\\)' + ' i udtrykket: <br><br>';
+		solveGuide += '$$'+equationToLatex(convertTermsToLatexTerms( equation ))+'$$'; //  + '<br><br>';
+		solveGuide += 'En mulig løsning er: <br><br>';
+	} else {
+		solveGuide += 'Efter din forløbige omskrivning af ligningen, ser ligningen nu således ud:';
+		solveGuide += '$$'+equationToLatex(convertTermsToLatexTerms( equation ))+'$$';
+		solveGuide += '- hvor opgaven var at isolere ' + ((jq.fObj_translate[target].hasOwnProperty('word'))? jq.fObj_translate[target].word.toLowerCase() : '') + ' \\('+jq.fObj_translate[target].sym+'\\).' + '<br><br>';
+		solveGuide += 'En mulig løsning herfra er: <br><br>';
+	}
+	// solveGuide += '$$'+equationToLatex( equation )+'$$' + '<br><br>';
+	// solveGuide += '$$'+convertTermsToLatexTerms( equation )+'$$' + '<br><br>';
+	
+
+	
+
+	for (var n = 0; n < sc.memObj.stepVars.length; n++) {  // reducingTerm
+
+		eqSideStr = '';
+
+		reducingTerm = sc.memObj.stepVars[n].reducingTerm;
+		console.log('generateSolution - reducingTerm: ' + reducingTerm);
+
+		inverseOperator = sc.memObj.stepVars[n].inverseOperator;
+		console.log('generateSolution - inverseOperator: ' + inverseOperator);
+
+		console.log('generateSolution - n: ' + n + ', formula: ' + sc.memObj.stepVars[n].formula + ', inverseOperator: ' + inverseOperator + ', reducingTerm: ' + reducingTerm);
+
+		++count;
+		solveGuide += '('+count+') '+ operatorLookup[inverseOperator] + ' med ' + (((typeof(jq.fObj_translate[reducingTerm])!=='undefined') && (jq.fObj_translate[reducingTerm].hasOwnProperty('word')))? jq.fObj_translate[reducingTerm].word.toLowerCase() : '') + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+'\\) på begge sider af lighedsteget: <br><br>'; 
+		solveGuide += '$$'+equationToLatex(convertTermsToLatexTerms( sc.memObj.stepVars[n].reducableFormula ))+'$$'; //  + '<br><br>';
+
+		console.log('generateSolution - reducedFormula: ' + sc.memObj.stepVars[n].reducedFormula);
+
+		// leftSide = sc.memObj.stepVars[n].reducedFormula.split('=')[0];
+		// rightSide = sc.memObj.stepVars[n].reducedFormula.split('=')[1];
+
+		// len = reducingTerm.length+1;
+
+		// // LEFT SIDE
+		// pos_calc = leftSide.lastIndexOf(inversOpsLookup[inverseOperator]+reducingTerm);
+		// console.log('generateSolution - pos_calc: ' + pos_calc + ', leftSide.length - (reducingTerm.length + 1): ' + String(leftSide.length - (reducingTerm.length + 1)));
+		// if ((pos_calc!==-1) && (leftSide.length - (reducingTerm.length + 1) == pos_calc)) {
+		// 	console.log('generateSolution - A0');
+
+		// 	eqSideStr += 'venstre side ';
+		// }
+
+		// // RIGHT SIDE
+		// pos_calc = rightSide.lastIndexOf(inversOpsLookup[inverseOperator]+reducingTerm);
+		// console.log('generateSolution - pos_calc: ' + pos_calc + ', rightSide.length - (reducingTerm.length + 1): ' + String(rightSide.length - (reducingTerm.length + 1)));
+		// if ((pos_calc!==-1) && (rightSide.length - (reducingTerm.length + 1) == pos_calc)) {
+		// 	console.log('generateSolution - A1');
+
+		// 	eqSideStr += 'højre side ';
+		// }
+		// console.log('generateSolution - eqSideStr: _' + eqSideStr + '_');
+
+		// eqSideStr = (eqSideStr=='venstre side højre side ')? 'begge sider ' : eqSideStr;
+
+		// ++count; 
+		// solveGuide += '('+count+') '+ reduceLookup[inverseOperator] + ' med ' + ((jq.fObj_translate[reducingTerm].hasOwnProperty('word'))? jq.fObj_translate[reducingTerm].word.toLowerCase() : '') + ' "'+jq.fObj_translate[reducingTerm].sym+ '" på ' + eqSideStr + ' af lighedsteget. <br><br>';
+		// solveGuide += sc.memObj.stepVars[n].reducedFormula + '<br><br>';
+
+		++count; 
+		solveGuide += '('+count+') '+ reduceLookup[inverseOperator] + ' med ' + (((typeof(jq.fObj_translate[reducingTerm])!=='undefined') && (jq.fObj_translate[reducingTerm].hasOwnProperty('word')))? jq.fObj_translate[reducingTerm].word.toLowerCase() : '') + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+ '\\): <br><br>';
+		solveGuide += '$$'+equationToLatex(convertTermsToLatexTerms( sc.memObj.stepVars[n].reducedFormula ))+'$$'; // + '<br><br>';
+	}
+
+	solveGuide += ((jq.fObj_translate[target].hasOwnProperty('word'))? jq.fObj_translate[target].word : '') + ' \\('+jq.fObj_translate[target].sym+'\\) er nu isoleret.';
+
+	console.log('generateSolution - solveGuide: ' + solveGuide);
+
+	
+	// $('#helpContainer_hidden').html(solveGuide);  // Add the equation to the hidden container
+	// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#helpContainer_hidden')[0]]);
+	// MathJax.Hub.Queue(function (){
+	// 	UserMsgBox('body', $('#helpContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+	// });
+
+	
+	return {solveGuide: solveGuide, noOfStepsToCompletion: sc.memObj.stepVars.length};
+}
+
+
+
 function setEventListeners() {
 	$( document ).on('click', "#next", function(event){ 
-		// giveQuestion();
-		++memObj.currentQuestionNo;
-		giveQuestion();
 
-		// Dynamisk genereret LaTex:
-		// =========================
-        microhint($("#equationContainer"), poseQuestion(), "red");   // #micro_hint
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
-        // MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#btnContainer')[0]]);
+		if (memObj.hasCurrentQuestionBeenAnswered) {
+			// giveQuestion();
+			++memObj.currentQuestionNo;
+			giveQuestion();
+
+			memObj.hasCurrentQuestionBeenAnswered = false; 
+
+			// Dynamisk genereret LaTex:
+			// =========================
+	  //       microhint($("#equationContainer"), poseQuestion(), "red");   // #micro_hint
+	  //       MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
+
+	  //       MathJax.Hub.Queue(function () {
+			// 	console.log('mathJaxQueue - MJXc-display: ' + $('.MJXc-display').length);
+			// });
 
 
-        MathJax.Hub.Queue(function () {
-			console.log('mathJaxQueue - MJXc-display: ' + $('.MJXc-display').length);
-		});
+			// mathJaxEquationAjuster('#equationContainer');
+		} 
+		else {
+			if (typeof(nextBtnHintCount) === 'undefined') {
+				window.nextBtnHintCount = 0;
+			}
+			if (nextBtnHintCount == 0) {
+				microhint($('#next'), "Opgaven er ikke løst endnu, så du kan ikke gå næste opgave.", true, "#000");
+			}
+			if (nextBtnHintCount >= 1) {
+				microhint($('#next'), "Opgaven er ikke løst endnu, så du kan ikke gå næste opgave. <br> Prøv at arbejde dig videre med omskrivningen af formlen - du får mulighed for hjælp undervejs.", true, "#000");
+			}
 
-
-		mathJaxEquationAjuster('#equationContainer');
+			++nextBtnHintCount;
+		}
 	});
 
 	$( document ).on('click', ".operator", function(event){ 
@@ -1983,18 +2915,26 @@ function setEventListeners() {
 		console.log('\n======================================  CLICK: .operator  ==========================================\n ');
 
 		var dataOperator = $(this).attr('data-operator');
-		console.log('setEventListeners - dataOperator: ' + dataOperator);
+		console.log('setEventListeners - operator - dataOperator: ' + dataOperator);
 
 		var dataTerm = $(this).attr('data-term');
-		console.log('setEventListeners - dataTerm: ' + dataTerm);
+		console.log('setEventListeners - operator - dataTerm: ' + dataTerm);
 
 		var equation = fObj.equation;
-		console.log('setEventListeners - equation: ' + equation);
+		console.log('setEventListeners - operator - equation: ' + equation);
 
+		fObj.equation_old = equation;   // Added 27/4-2017
 		fObj.equation = performOperation(equation, dataOperator, dataTerm);
-		console.log('setEventListeners - fObj.equation: ' + fObj.equation);
+		console.log('setEventListeners - operator - fObj.equation: ' + fObj.equation);
+		console.log('setEventListeners - operator - fObj: ' + JSON.stringify(fObj));
 
-		// $('#equationContainer_hidden').html(poseEquation());  // Add the equation to the hidden container
+		var solveObj = generateSolution(false); // <--- solveFromTheBeginning = "false" generates the answer to the studen with the current equation.
+		// console.log('setEventListeners - solveObj.noOfStepsToCompletion: ' + solveObj.noOfStepsToCompletion + ', this.fObj.noOfStepsToCompletion: ' + this.fObj.noOfStepsToCompletion);
+		console.log('setEventListeners - solveObj.noOfStepsToCompletion: ' + solveObj.noOfStepsToCompletion);
+		console.log('setEventListeners - fObj.noOfStepsToCompletion: ' + fObj.noOfStepsToCompletion);
+		
+
+		// $('#equationContainer_hidden').html('$$'+poseEquation(fObj.equation)+'$$');  // Add the equation to the hidden container
 
 		// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
 
@@ -2009,12 +2949,59 @@ function setEventListeners() {
 			$('#reduceBtnContainer').html(redTermStr);
 			$('.operator').addClass('operator_inactive').removeClass('operator');
 			$('.subHeader').addClass('subHeader_inactive').removeClass('subHeader');
+
 			// MathJax.Hub.Queue(function (){
-			// 	MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#reduceBtn')[0]]);
+			// 	MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.reduceBtn')[0]]);
 			// });
+		} else {
+
+			// isEquationSolved(fObj.equation_old);
+			// isEquationSolved(fObj.equation);
+
+			if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion == jsonData.distanceBeforeHelp) {
+
+	   			// DENNE MICROHINT-TEST VIRKER IKKE - DENNE STANDARD METODE FEJLER (CONSOL ERROR)
+	   			// $('#microhint_hidden').html('$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$');  // Add the equation to the hidden container
+				// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#microhint_hidden')[0]]);
+				// MathJax.Hub.Queue(function (){
+				// 	microhint($(this), $('#microhint_hidden').html(), true,"red");
+				// 	// UserMsgBox('body', $('#microhint_hidden').html());    // <--- VIRKER FINT MED USERMSGBOX!
+				// 	// microhint($(this), "Dette er en test!", true,"red");  // <--- VIRKER IKKE!
+				// });
+
+
+				// DENNE MICROHINT-TEST VIRKER
+				// microhint($(this), "Denne teste virker fint ;-)", true,"red");  // <--- VIRKER HELT FINT!
+
+
+				// DENNE MICROHINT-TEST MED TIMER VIRKER IKKE - CONSOL ERROR
+				// $('#microhint_hidden').html('$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$');  // Add the equation to the hidden container
+				// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#microhint_hidden')[0]]);
+				// MathJax.Hub.Queue(function (){
+				// 	setTimeout(function(){
+				// 		microhint($(this), $('#microhint_hidden').html(), true,"red");
+				// 	}, 1000);
+				// });
+
+
+				// microhint($(this), '$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$', true,"red");  // <---- DENNE MICROHINT-TEST VIRKER IKKE - PILEN I MICROHINTET ER IKKE SYNLIG!
+				microhint($(this), 'Du har ved denne operation forlænget vejen til en løsning!', true, "#000");
+				// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
+			}
+
+			if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion == jsonData.distanceBeforeHelp+1) {
+				microhint($(this), 'Du har nu yderligere forlænget vejen til en løsning!', true,"#000");
+			}
+
+			if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion >= jsonData.distanceBeforeHelp+2) {
+				microhint($(this), 'Tryk på "Se løsningsforslag" hvis du ønsker hjælp til lødningen! <br><br> <span id="help_now" class="btn btn-info">Se løsningsforslag</span> ', true,"#000");
+			}
+		
 		}
 
-		$('#equationContainer_hidden').html(poseEquation());  // Add the equation to the hidden container
+		msg_goToNextEquation_or_finish(fObj.equation);
+
+		$('#equationContainer_hidden').html('$$'+poseEquation(fObj.equation)+'$$');  // Add the equation to the hidden container
 
 		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
 
@@ -2027,7 +3014,77 @@ function setEventListeners() {
 	});
 
 	$( document ).on('click', ".reduceBtn", function(event){
-		
+		// performStrikeThrough(equationSide, inverseOperator, reducingTerm);  // <----- 5/4-2017
+
+		// var formulaArr = fObj.equation_old.replace(/ /g,'').split('=');
+		var formulaArr = fObj.equation.replace(/ /g,'').split('=');
+		console.log('.reduceBtn - fObj.equation_old: ' + fObj.equation_old + ', formulaArr: ' + formulaArr);
+		var eq_left = performStrikeThrough(formulaArr[0], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm);  
+		var eq_right = performStrikeThrough(formulaArr[1], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm); 
+		console.log('.reduceBtn - eq_left: ' + eq_left + ', eq_right: ' + eq_right);
+
+		fObj.equation_strikeThrough = eq_left+'='+eq_right;
+		console.log('.reduceBtn - fObj 1: ' + JSON.stringify(fObj));
+
+		// fObj.equation = '\\require{cancel} ' + fObj.equation;  // IMPORTANT: This configures MathJax to treat \cancel{} as a function.
+		// console.log('.reduceBtn - fObj.equation 2: ' + JSON.stringify(fObj.equation));
+
+// // fObj.equation = '\\require{cancel} \\frac{Q}{C} = \\frac{ \\cancel{C} \\cdot m \\cdot \\Delta{T} }{\\cancel{C}}';  // TEST!
+// fObj.equation = '\\require{cancel} 1 = \\frac{ \\cancel{C} }{\\cancel{C}}';  // TEST!
+// fObj.equation = ' 1 \= \\frac{C}{C}';
+
+		// console.log('.reduceBtn - test 1 - fObj.equation_strikeThrough: ' + fObj.equation_strikeThrough);
+		// console.log('.reduceBtn - test 2 - (poseEquation(fObj.equation_strikeThrough)): ' + poseEquation(fObj.equation_strikeThrough));
+		// console.log('.reduceBtn - test 3 - replaceStrikeThroughDelimiter(poseEquation(fObj.equation_strikeThrough)): ' + replaceStrikeThroughDelimiter(poseEquation(fObj.equation_strikeThrough)));
+		// console.log('.reduceBtn - test 5 - replaceStrikeThroughDelimiter_2( fObj.equation_strikeThrough): ' + replaceStrikeThroughDelimiter_2( fObj.equation_strikeThrough));
+		// console.log('.reduceBtn - test 6 - poseEquation( replaceStrikeThroughDelimiter_2( fObj.equation_strikeThrough)): ' + poseEquation( replaceStrikeThroughDelimiter_2( fObj.equation_strikeThrough)));
+		// console.log('.reduceBtn - test 7 - replaceStrikeThroughDelimiter_2( poseEquation( fObj.equation_strikeThrough)): ' + replaceStrikeThroughDelimiter_2( poseEquation( fObj.equation_strikeThrough)));
+
+		// var eq =  '$$ \\require{cancel} '+replaceStrikeThroughDelimiter(poseEquation(fObj.equation_strikeThrough))+'$$';  // <-----  IMPORTANT: This configures MathJax to treat \cancel{} as a function.  COMMENTED OUT 14/6-2017
+		var eq =  '$$ \\require{cancel} '+replaceStrikeThroughDelimiter_2( poseEquation( fObj.equation_strikeThrough))+'$$';  // <-----  IMPORTANT: This configures MathJax to treat \cancel{} as a function. ADDED 14/8-2017
+		console.log('.reduceBtn - eq: ' + eq);
+
+		$('#equationContainer_hidden').html(eq);  // Add the equation to the hidden container
+
+// $('#equationContainer').css('font-size', '200%');  // <----- VIRKER IKKE!
+// $('#equationContainer').addClass('fontSize250');  // <----- VIRKER IKKE!
+// $('#equationContainer .MJXc-display').css('font-size', '200%');  // <----- VIRKER IKKE!
+
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+
+		MathJax.Hub.Queue(function (){
+			$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+
+			bugfix_strikeThrough();
+
+
+			// mathJaxEquationAjuster('#equationContainer');
+
+			// mathJaxEquationAjuster2('#equationContainer');
+
+			// sc.reduceTargetSide_2('a+b/(a+d)', '-', 'a')
+			// console.log('.reduceBtn - reduceTargetSide_3: ' + sc.reduceTargetSide_3(fObj.equation_old, fObj.suggestedinverseOperator, fObj.suggestedReducingTerm));
+			
+			// console.log('.reduceBtn - reduceEquation: ' + reduceEquation(fObj.equation_old, fObj.suggestedinverseOperator, fObj.suggestedReducingTerm));    // <----- FEJL 19/5-2017: 
+
+			fObj.equation = reduceEquation(fObj.equation, fObj.suggestedinverseOperator, fObj.suggestedReducingTerm);    // Added 22/5-2017
+			console.log('.reduceBtn - fObj.equation: ' + fObj.equation);    // Added 22/5-2017
+
+			setTimeout(function(){
+				$('#equationContainer_hidden').html('$$'+ poseEquation(fObj.equation) + '$$');  // Add the equation to the hidden container
+				MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+				MathJax.Hub.Queue(function (){
+					$('#equationContainer').html($('#equationContainer_hidden').html()); 
+
+					$('.operator_inactive').addClass('operator').removeClass('operator_inactive');
+					$('.subHeader_inactive').addClass('subHeader').removeClass('subHeader_inactive');
+					$('#reduceBtnContainer').html('');
+
+					msg_goToNextEquation_or_finish(fObj.equation);
+				});
+			}, 2000);
+		});
+
 	});
 
 	$( document ).on('click', ".microhint", function(event){
@@ -2036,25 +3093,76 @@ function setEventListeners() {
 
 	$( document ).on('click', "#equationContainer", function(event){
 
-		if ($('.microhint').length > 0){
-			$('.microhint').remove();
-		} else {
+		// if ($('.microhint').length > 0){
+		// 	$('.microhint').remove();
+		// } else {
 	        
-			// Dynamisk genereret LaTex:
-			// =========================
-	        microhint($(this), poseQuestion(), "red");   // #micro_hint
-	        MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
+		// 	// Dynamisk genereret LaTex:
+		// 	// =========================
+	 //        microhint($(this), poseQuestion(), "red");   // #micro_hint
+	 //        MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
 
-	        // Pre-formateret LaTex fra hidden field:
-			// ======================================
-	        // microhint($(this), String($('#micro_hint').html()), "red");
-	    }
+	 //        // Pre-formateret LaTex fra hidden field:
+		// 	// ======================================
+	 //        // microhint($(this), String($('#micro_hint').html()), "red");
+	 //    }
 
         console.log("microhint - CALLED");
     });
 
+
+    $( document ).on('click', "#help_complete", function(event){
+
+		var solveObj = generateSolution(true);
+
+		$('#helpContainer_hidden').html(solveObj.solveGuide);  // Add the equation to the hidden container
+
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#helpContainer_hidden')[0]]);
+
+		MathJax.Hub.Queue(function (){
+			UserMsgBox('body', $('#helpContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+		});
+	});
+
+
+	$( document ).on('click', "#help_now", function(event){
+
+		var solveObj = generateSolution(false);
+
+		$('#helpContainer_hidden').html(solveObj.solveGuide);  // Add the equation to the hidden container
+
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#helpContainer_hidden')[0]]);
+
+		MathJax.Hub.Queue(function (){
+			UserMsgBox('body', $('#helpContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+		});
+	});
+
+
+	$(document).on('click', ".MsgBox_reload", function(event) {
+		location.reload(); 
+	});
+
+
 }
 
+function shuffelArray(ItemArray) {
+    var NumOfItems = ItemArray.length;
+    var NewArray = ItemArray.slice(); // Copy the array... 
+    var Item2;
+    var TempItem1;
+    var TempItem2;
+    for (var Item1 = 0; Item1 < NumOfItems; Item1++) {
+        Item2 = Math.floor(Math.random() * NumOfItems);
+        TempItem1 = NewArray[Item1];
+        TempItem2 = NewArray[Item2];
+        NewArray[Item2] = TempItem1;
+        NewArray[Item1] = TempItem2;
+    }
+    return NewArray;
+}
+console.log('shuffelArray([0]): ' + shuffelArray([0]));
+console.log('shuffelArray([0,1]): ' + shuffelArray([0,1]));
 
 function detectBootstrapBreakpoints(){
     if (typeof(bootstrapBreakpointSize) === 'undefined') {
@@ -2109,7 +3217,7 @@ function mathJaxEquationAjuster(equationSelector) {
 		
 		fontSize = parseInt($(equationSelector).css('font-size').replace('px', ''));
 		console.log('mathJaxEquationAjuster - A0 - fontSize: ' + fontSize + ', fontEquationSize: ' + fontEquationSize);
-		console.log('mathJaxEquationAjuster - MJXc-display: ' + $('.MJXc-display').length + ', mjx-char: ' + $('.mjx-char').length);  // mjx-char
+		console.log('mathJaxEquationAjuster - MJXc-display: ' + $('.MJXc-display').length + ', mjx-char x: ' + $('.mjx-char').length);  // mjx-char
 		var parentWidth = $(equationSelector).width(); // The width of #equationContainer
 		var childWidth = $(equationSelector + '> .MJXc-display > span').width();
 		console.log('mathJaxEquationAjuster - parentWidth: ' + parentWidth + ', childWidth: ' + childWidth);
@@ -2152,6 +3260,14 @@ function mathJaxEquationAjuster(equationSelector) {
 }
 
 
+function mathJaxEquationAjuster2(equationSelector) {
+	var parentWidth = $(equationSelector).width(); // The width of #equationContainer
+	var childWidth = $(equationSelector + '> .MJXc-display').width();
+
+	$('#equationContainer').css('font-size', '200%');  // <----- VIRKER IKKE!
+}
+
+
 $(window).resize(function() {
 	// $('#leftColumn').attr('class', ((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered'));
 	// $('#btnContainer').attr('class', ((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered'));
@@ -2162,14 +3278,35 @@ $(window).resize(function() {
 });
 
 $(document).ready(function() {
+
+	jsonData.qObj = shuffelArray(jsonData.qObj);  // <--- Randomize the quiz questions.
+
 	initQuiz();
 	autoLeftSpacer();
-
 
 	MathJax.Hub.Queue(function () {
 		console.log('mathJaxEquationAjuster - MJXc-display: ' + $('.MJXc-display').length + ', mjx-char: ' + $('#equationContainer .mjx-char').length);  // mjx-char
 	});
 
+
+	//========================
+	// 		INIT SOLVER:
+	//========================
+	var sc = Object.create(solverClass);
+	var jq = jsonData.qObj[memObj.currentQuestionNo];
+	if (jq.fObj_translate.hasOwnProperty('target')){
+		sc.fObj.target = jq.fObj_translate.target;
+		console.log('document.ready - sc.fObj: ' + JSON.stringify(sc.fObj));
+	} 
+
 	// microhint('#equationContainer', "TEST HINT", "red");
 
+
+	// generateSolution(true);
+
 });
+
+
+
+
+

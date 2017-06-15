@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MathJax test</title>
+    <!-- http://www.robotstxt.org/meta.html -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../library/css/styles.css" type="text/css" />
+    <link rel="stylesheet" href="ligning.css" type="text/css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <style type="text/css">
+
+
+    </style>
+</head>
+
+    <body>
+        <div class="container-fluid">
+
+            <h1 id="test"> Test of diffrent symbols needed in Fysik C </h1>
+
+            Multiplication operator \cdot:
+
+            $$ Q = C \cdot m \cdot \Delta T $$
+
+            Divide both sides by \(C\):
+
+            <span id="before"> $$ \frac{Q}{C} = \frac{ C \cdot m \cdot \Delta T }{C} $$ </span> 
+
+            MathJax needs to require/include the cancel/strikethrough operator:
+ 
+            <span id="after"> $$ \require{cancel} \frac{Q}{C} = \frac{ \cancel{C} \cdot m \cdot \Delta T }{\cancel{C}} $$ </span> 
+
+            Test of transitional effects when performing strikethrough from <b>static</b> LaTex input - here no fadeIn/fadeOUt JQuery effect: 
+
+            <span id="transition1" class="after_strike">  </span> <span id="btn_transition1" class="btn btn-info"> Strikethrough </span>
+
+            <br><br>
+
+            Test of transitional effects when performing strikethrough from preloaded HTML input - here no fadeIn/fadeOUt JQuery effect: 
+
+            <span id="transition2" class="after_strike">  </span> <span id="btn_transition2" class="btn btn-info"> Strikethrough </span>
+
+            <br><br>
+
+            Test of transitional effects when performing strikethrough from preloaded HTML input - here with fadeIn/fadeOUt JQuery effect: 
+
+            <span id="transition3" class="after_strike">  </span> <span id="btn_transition3" class="btn btn-info"> Strikethrough </span>
+
+            
+
+        </div>
+        <script src="../library/vendor_scripts.js"></script>
+        <script src="../library/custom_scripts.js"></script>
+
+        <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>   <!--  The perferred location is in the head-tag, and not the body-tag  -->
+
+        <script type="text/javascript">
+
+            // The default math delimiters are $$...$$ and \[...\] for displayed mathematics, and \(...\) for in-line mathematics:
+            // http://docs.mathjax.org/en/latest/start.html#mathjax-cdn 
+
+            var text = $('#test').text().replace(/\$/g, '');           // <----------  IMPORTANT: LaTex needs to fetched before 
+            console.log('btn_transition1 - CLICK - test: ' + text);
+
+            var after = $('#after').text().replace(/\$/g, '');
+            var before = $('#before').text().replace(/\$/g, '');
+
+            console.log('btn_transition1 - CLICK - after: ' + after);
+            console.log('btn_transition1 - CLICK - before: ' + before);
+
+
+            $( document ).on('click', "#btn_transition1", function(event){
+
+                $('#transition1').toggleClass('before_strike after_strike');
+
+                if ($('#transition1').hasClass('before_strike')){
+                    $('#transition1').html('$$'+after+'$$');
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#transition1')[0]]);
+                }
+
+                if ($('#transition1').hasClass('after_strike')){
+                    $('#transition1').html('$$'+before+'$$');
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#transition1')[0]]);
+                }
+            });
+
+
+            $( document ).on('click', "#btn_transition2", function(event){
+
+                $('#transition2').toggleClass('before_strike after_strike');
+
+                if ($('#transition2').hasClass('before_strike')){
+                    $('#transition2').html($('#after').html());
+                }
+
+                if ($('#transition2').hasClass('after_strike')){
+                    $('#transition2').html($('#before').html());
+                }
+            });
+
+            $( document ).on('click', "#btn_transition3", function(event){
+
+                $('#transition3').toggleClass('before_strike after_strike');
+
+                if ($('#transition3').hasClass('before_strike')){
+                    $('#transition3').html($('#after').html()).hide().fadeIn();
+                }
+
+                if ($('#transition3').hasClass('after_strike')){
+                    $('#transition3').html($('#before').html()).hide().fadeIn();
+                }
+            });
+
+            $(document).ready(function() {
+                $('#transition1').html('$$'+before+'$$');
+
+                $('#transition2').html($('#before').html());
+
+                $('#transition3').html($('#before').html());
+            });
+            
+        </script>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            one_line_footer();
+        });
+        </script>
+    </body>
+
+</html>

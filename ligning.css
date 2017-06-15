@@ -1,4 +1,4 @@
- 
+
 
 #interface{
 	
@@ -10,15 +10,35 @@
 	margin-left: auto;
 	margin-right: auto;
 	width: 50%;
+	font-weight: 700;
 }
 
 #equationContainer{
 	/*border: 1px solid #0F0;*/
 	font-size: 250%;
+	margin-bottom: 65px;
 }
 #equationContainer_hidden{
 	display: none;
 }
+
+#helpContainer_hidden{
+	display: none;
+}
+
+#microhint_hidden {
+	display: none;
+}
+
+#reduceBtn_hidden{
+	display: none;
+}
+
+/*
+#equationContainer g {
+	font-size: 200%;
+}
+*/
 
 #btnContainer{
 	/*border: 1px solid #00F;*/ 
@@ -82,4 +102,29 @@
 
 .reduceBtn{
 
+}
+
+.fontSize250{
+	font-size: 250%;
+}
+
+.btn_help {
+	opacity: 0.5;
+	margin-top: 20px;
+}
+
+.microhint_label_success{
+
+}
+
+#nextBtnContainer {
+	margin-top: 40px;
+}
+
+#next {
+    margin-right: 10px;
+}
+
+#help_now {
+	margin-right: 10px;
 }
