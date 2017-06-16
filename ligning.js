@@ -679,43 +679,46 @@ function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  //
 					}
 				}
 
-				if (inverseOperator == '*') { 
-					console.log('performStrikeThrough - A15');
+				if ((inverseOperator == '*') || (inverseOperator == '/')) {
 
-					// if ((opBefore == '/') && ((opEnd == '*') || (opEnd == '/'))) {
-					if (((opBefore == null) || (opBefore == '*') || (opBefore == '/')) && ((opEnd == '*') || (opEnd == '/'))){  // Added 1/5-2017
-						console.log('performStrikeThrough - A16');
+					if (inverseOperator == '*') { 
+						console.log('performStrikeThrough - A15');
 
-						// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
-						TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
+						// if ((opBefore == '/') && ((opEnd == '*') || (opEnd == '/'))) {
+						if (((opBefore == null) || (opBefore == '*') || (opBefore == '/')) && ((opEnd == '*') || (opEnd == '/'))){  // Added 1/5-2017
+							console.log('performStrikeThrough - A16');
+
+							// TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opEnd);
+							TequationSide = TequationSide.replace(opBefore+reducingTerm+opEnd, opBefore+reducingTerm+st+opEnd);
+						}
+
+						// if ((opEnd == null) && (opBefore == '/')){
+						if ((opEnd == null) && ((opBefore == '*') || (opBefore == '/'))){  // Added 1/5-2017
+							console.log('performStrikeThrough - A17');
+
+							// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+							TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+						}
 					}
 
-					// if ((opEnd == null) && (opBefore == '/')){
-					if ((opEnd == null) && ((opBefore == '*') || (opBefore == '/'))){  // Added 1/5-2017
-						console.log('performStrikeThrough - A17');
+					if (inverseOperator == '/') { 
+						console.log('performStrikeThrough - A18');
 
-						// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
-						TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
-					}
-				}
+						// if (((opBefore == null) || (opBefore == '*')) && ((opEnd == '*') || (opEnd == '/'))){ 
+						if (((opBefore == null) || (opBefore == '*') || (opBefore == '/')) && ((opEnd == '*') || (opEnd == '/'))){  // Added 1/5-2017
+							console.log('performStrikeThrough - A19');
 
-				if (inverseOperator == '/') { 
-					console.log('performStrikeThrough - A18');
+							// TequationSide = TequationSide.replace(reducingTerm+opEnd, '');
+							TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
+						}
 
-					// if (((opBefore == null) || (opBefore == '*')) && ((opEnd == '*') || (opEnd == '/'))){ 
-					if (((opBefore == null) || (opBefore == '*') || (opBefore == '/')) && ((opEnd == '*') || (opEnd == '/'))){  // Added 1/5-2017
-						console.log('performStrikeThrough - A19');
+						// if ((opEnd == null) && (opBefore == '*')){
+						if ((opEnd == null) && ((opBefore == '*') || (opBefore == '/'))){  // Added 1/5-2017
+							console.log('performStrikeThrough - A20');
 
-						// TequationSide = TequationSide.replace(reducingTerm+opEnd, '');
-						TequationSide = TequationSide.replace(reducingTerm+opEnd, reducingTerm+st+opEnd);
-					}
-
-					// if ((opEnd == null) && (opBefore == '*')){
-					if ((opEnd == null) && ((opBefore == '*') || (opBefore == '/'))){  // Added 1/5-2017
-						console.log('performStrikeThrough - A20');
-
-						// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
-						TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+							// TequationSide = TequationSide.replace(opBefore+reducingTerm, '');
+							TequationSide = TequationSide.replace(opBefore+reducingTerm, opBefore+reducingTerm+st);
+						}
 					}
 				}
 
@@ -840,13 +843,14 @@ function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  //
 // console.log("performStrikeThrough('b*a', '*', 'a'): " + performStrikeThrough('b*a', '*', 'a')); // <---- FEJL - 10-03-2017  <--- OK - 10-03-2017
 // console.log("performStrikeThrough('b/a', '*', 'a'): " + performStrikeThrough('b/a', '*', 'a')); 
 
-
 //================
 //		NEW 		// AFTER 1/5-2017
 //================
 // console.log("performStrikeThrough('b/a*a', '*', 'a'): " + performStrikeThrough('b/a*a', '*', 'a')); 
 
 // console.log("performStrikeThrough('(c-b)/a*a', '*', 'a'): " + performStrikeThrough('(c-b)/a*a', '*', 'a')); 
+
+// console.log("performStrikeThrough('a*b/a', '/', 'a'): " + performStrikeThrough('a*b/a', '/', 'a'));
 
 
 // console.log("performStrikeThrough('b*c/b', '/', 'b'): " + performStrikeThrough('b*c/b', '/', 'b')); 
@@ -856,6 +860,92 @@ function performStrikeThrough(equationSide, inverseOperator, reducingTerm) {  //
 //           |         |         |         |
 // b_strikeThrough*c/b
 // \cancel{b}*c/b
+
+
+// ADDED 15/6-2017
+// VIGTIGT: Denne funktion tager ikke højde for operatorene "+" og "-"
+function performStrikeThrough_onlyMultAndDiv(equationSide, inverseOperator, reducingTerm) {
+	console.log('\nperformStrikeThrough_onlyMultAndDiv - equationSide: ' + equationSide + ', inverseOperator: ' + inverseOperator + ', reducingTerm: ' + reducingTerm);
+
+	var pArr = sc.outerParenthesisBound(equationSide);
+	console.log('performStrikeThrough_onlyMultAndDiv - pArr: ' + JSON.stringify(pArr));
+
+	var pObj = sc.returnParenthesisObj_formula(equationSide, pArr, reducingTerm);   
+	console.log('performStrikeThrough_onlyMultAndDiv - pObj: ' + JSON.stringify(pObj)); 
+
+	leftSide = pObj.formula_mod;
+	parenthesisArr = pObj.parenthesisArr;
+
+	var pos;
+
+	// If TequationSide = a*x/(x*b)  OR  x*a/(x*b) , then -----> a*x/b  OR  x*a/b
+	if ((inverseOperator = '/') || (inverseOperator = '*')) {
+		console.log('performStrikeThrough_onlyMultAndDiv - A1');
+
+		if (parenthesisArr.length == 0) { 
+
+			pos = equationSide.indexOf(reducingTerm);
+
+			var opObj = returnSurroundingOps(reducingTerm, pos, equationSide);
+			console.log('performStrikeThrough - opObj: ' + JSON.stringify(opObj));
+
+			var TreducingTerm = opObj.opBegin+reducingTerm+opObj.opEnd;
+			TreducingTerm = TreducingTerm.replace('+', '').replace('-', '');
+
+			if (('/'+reducingTerm != TreducingTerm) && (equationSide.indexOf(TreducingTerm)!==-1) && (equationSide.indexOf('/'+reducingTerm)!==-1)) {
+				
+				var TreducingTerm_strikeThrough = opObj.opBegin+reducingTerm+'_strikeThrough'+opObj.opEnd;
+				TreducingTerm_strikeThrough = TreducingTerm_strikeThrough.replace('+', '').replace('-', '');
+
+				equationSide = equationSide.replace(TreducingTerm, TreducingTerm_strikeThrough);
+				equationSide = equationSide.replace('/'+reducingTerm, '/'+reducingTerm+'_strikeThrough');
+			}
+		}
+
+		if (parenthesisArr.length == 1) { // If there is only one parenthesis...
+			console.log('performStrikeThrough_onlyMultAndDiv - A2');
+
+			if (parenthesisArr[0].match(/(\+|\-|\/)/g) === null) { // If "+", "-" og "/" is NOT present... (NOTE: .match() returns "null" if nothing i matched).
+				console.log('performStrikeThrough_onlyMultAndDiv - A3');
+
+				pos = equationSide.indexOf('/(');
+				if (pos !== -1) { // If "/(" is found...  NOTE: equationSide is the original leftSide WITH parenthesis...
+					console.log('performStrikeThrough_onlyMultAndDiv - A4');
+
+					nominator = equationSide.substring(0, pos);
+					denominator = equationSide.substring(pos+1);
+					console.log('performStrikeThrough_onlyMultAndDiv - nominator: ' + nominator + ', denominator: ' + denominator + ', reducingTerm: _' + reducingTerm + '_');
+
+					if ((nominator.match(/(\+|\-|\/)/g) === null) && (nominator.indexOf(reducingTerm)!==-1) && // If +,-,/ is NOT present in nominator AND reducingTerm is present...
+						(denominator.match(/(\+|\-|\/)/g) === null) && (denominator.indexOf(reducingTerm))!==-1) {  // If +,-,/ is NOT present in denominator AND reducingTerm is present...
+							console.log('performStrikeThrough_onlyMultAndDiv - A5');
+
+							nominator = nominator.replace(reducingTerm, reducingTerm+'_strikeThrough');
+
+							denominator = denominator.replace(reducingTerm, reducingTerm+'_strikeThrough');
+
+							if (denominator.match(/(\+|\-|\/|\*)/g) === null) {	// If no other operators are present, e.g. if we have the case a*x/(b), then ----> a*x/b
+								console.log('performStrikeThrough_onlyMultAndDiv - A6');
+								denominator = sc.removeOuterParenthesisAroundNonSpecialTerms(denominator);
+							}
+					}
+
+					equationSide = nominator+'/'+denominator; 
+					console.log('performStrikeThrough_onlyMultAndDiv - equationSide: ' + equationSide);
+				}
+			}
+		}
+	}
+
+	return equationSide;
+}
+console.log("performStrikeThrough_onlyMultAndDiv('a*b/a', '/', 'a'): " + performStrikeThrough_onlyMultAndDiv('a*b/a', '/', 'a'));
+console.log("performStrikeThrough_onlyMultAndDiv('a*a*b/a', '/', 'a'): " + performStrikeThrough_onlyMultAndDiv('a*a*b/a', '/', 'a'));
+console.log("performStrikeThrough_onlyMultAndDiv('a*b/(a)', '/', 'a'): " + performStrikeThrough_onlyMultAndDiv('a*b/(a)', '/', 'a'));
+console.log("performStrikeThrough_onlyMultAndDiv('a*a*b/(a)', '/', 'a'): " + performStrikeThrough_onlyMultAndDiv('a*a*b/(a)', '/', 'a'));
+console.log("performStrikeThrough_onlyMultAndDiv('a*b/(a*c)', '/', 'a'): " + performStrikeThrough_onlyMultAndDiv('a*b/(a*c)', '/', 'a'));
+console.log("performStrikeThrough_onlyMultAndDiv('a*a*b/(a*c)', '/', 'a'): " + performStrikeThrough_onlyMultAndDiv('a*a*b/(a*c)', '/', 'a'));
+
 
 
 function replaceStrikeThroughDelimiter(equation) {
@@ -3019,8 +3109,10 @@ function setEventListeners() {
 		// var formulaArr = fObj.equation_old.replace(/ /g,'').split('=');
 		var formulaArr = fObj.equation.replace(/ /g,'').split('=');
 		console.log('.reduceBtn - fObj.equation_old: ' + fObj.equation_old + ', formulaArr: ' + formulaArr);
-		var eq_left = performStrikeThrough(formulaArr[0], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm);  
-		var eq_right = performStrikeThrough(formulaArr[1], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm); 
+		// var eq_left = performStrikeThrough(formulaArr[0], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm);              	// COMMENTED OUT 15/6-2107
+		// var eq_right = performStrikeThrough(formulaArr[1], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm); 				// COMMENTED OUT 15/6-2107
+		var eq_left = performStrikeThrough_onlyMultAndDiv(formulaArr[0], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm);  	// ADDED 15/6-2107
+		var eq_right = performStrikeThrough_onlyMultAndDiv(formulaArr[1], fObj.suggestedinverseOperator, fObj.suggestedReducingTerm); 	// ADDED 15/6-2107
 		console.log('.reduceBtn - eq_left: ' + eq_left + ', eq_right: ' + eq_right);
 
 		fObj.equation_strikeThrough = eq_left+'='+eq_right;
@@ -3279,7 +3371,7 @@ $(window).resize(function() {
 
 $(document).ready(function() {
 
-	jsonData.qObj = shuffelArray(jsonData.qObj);  // <--- Randomize the quiz questions.
+	// jsonData.qObj = shuffelArray(jsonData.qObj);  // <--- Randomize the quiz questions.
 
 	initQuiz();
 	autoLeftSpacer();
