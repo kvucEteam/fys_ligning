@@ -1599,6 +1599,8 @@ function msg_goToNextEquation_or_finish(formula) {
 			$('.operator').addClass('operator_inactive').removeClass('operator');
 			$('.subHeader').addClass('subHeader_inactive').removeClass('subHeader');
 
+			// $('#next').text('Næste opgave');   // 19/6-2017
+
 			// microhint($(this), 'Hmmm... er du sikker på det?', true,"red");
 			microhint($('#next'), "<div class='microhint_label_success'>Opgaven er løst <b>korrekt!</b> </div> Klik for at gå til næste opgave ", true, "#000");
 
@@ -1993,15 +1995,15 @@ function template() {
 	HTML += '<div class="Clear"></div>';
 	HTML += '<div id="interface">';
 	HTML += 	'<div id="rightColumn" class="col-xs-12 col-md-6">';
-	HTML += 		'<div id="questionContainer"></div>';
+	HTML += 		'<div id="questionContainer" class="h3"></div>';
 	HTML += 		'<div id="equationContainer"></div>';   
 	// HTML += 		'<div id="equationContainer" class="fontSize250"></div>';
-	HTML += 		'<div id="equationContainer_hidden"></div>';
-	HTML += 		'<div id="helpContainer_hidden"></div>';
-	HTML += 		'<div id="microhint_hidden"></div>';
-	HTML += 		'<div id="reduceBtn_hidden"></div>';
+	HTML += 		'<div id="equationContainer_hidden" style="display: none;"></div>';
+	HTML += 		'<div id="helpContainer_hidden" style="display: none;"></div>';
+	HTML += 		'<div id="microhint_hidden" style="display: none;"></div>';
+	HTML += 		'<div id="reduceBtn_hidden" style="display: none;"></div>';
 	// HTML += 		'<div id="equationContainer_hidden" class="fontSize250"></div>';
-	HTML += 		'<div class="Clear"></div> <div id="nextBtnContainer"><div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span></div>';
+	// HTML += 		'<div class="Clear"></div> <div id="nextBtnContainer"><div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span></div>';
 	HTML += 	'</div>';
 	HTML += 	'<div id="leftColumn" class="col-xs-12 col-md-6">'; 
 	// HTML += 		((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered');
@@ -2010,11 +2012,12 @@ function template() {
 	// HTML += 		'<div class="Clear"></div> <div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span>';
 	HTML += 		'<div id="reduceBtnContainer"></div>'
 	HTML += 	'</div>';
+	// HTML += 	'<div id="leftColumn" class="col-xs-2">'; 
+	HTML += 		'<div class="Clear"></div> <div id="nextBtnContainer"><div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span></div>';
+	// HTML += 	'</div>';
 	HTML += '<div class="Clear"></div>';
-	HTML += '<div id="help_complete" class="btn_help btn btn-xs btn-info">Se løsningsforslag</div>';
-	HTML += '<div id="help_now" class="btn_help btn btn-xs btn-info">Hjælp nu</div>';
-	// HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\(b\\) i udtrykket </div>';    							// COMMENTED OUT 7/6-2017
-	// HTML += 	'<div id="micro_hint" class="hidden">Isoler størrelsen \\('+jsonData.qObj[memObj.currentQuestionNo].term+'\\) i udtrykket </div>';  // ADDED 7/6-2017
+	// HTML += '<div id="help_complete" class="btn_help btn btn-xs btn-info">Se løsningsforslag</div>';
+	// HTML += '<div id="help_now" class="btn_help btn btn-xs btn-info">Hjælp nu</div>';
 	HTML += '</div>';
 
 	$('#interfaceContainer').html(HTML);
@@ -2039,6 +2042,9 @@ function main() {
 
 function giveQuestion() {
 	console.log('giveQuestion - CALLED');
+
+	// $('#next').text();
+	// memObj.hasCurrentQuestionBeenAnswered = false;  // ADDED 19/6-2017
 
 	window.fObj = make_fObj(memObj.currentQuestionNo);
 	console.log('giveQuestion - x - fObj 1: ' + JSON.stringify(fObj));
@@ -2962,14 +2968,30 @@ function generateSolution(solveFromTheBeginning) {
 
 
 function setEventListeners() {
-	$( document ).on('click', "#next", function(event){ 
+
+	$( document ).on('click', "body", function(event){
+		console.log('body - CLICKED');
 
 		if (memObj.hasCurrentQuestionBeenAnswered) {
+			console.log('body - CLICKED - A0');
+
+			$('.microhint').remove();
+			$('#next').trigger('click');
+		}
+	});
+
+
+	$( document ).on('click', "#next", function(event){ 
+		console.log('#next - CLICKED');
+
+		if (memObj.hasCurrentQuestionBeenAnswered) {
+			console.log('#next - CLICKED - A0');
+
 			// giveQuestion();
 			++memObj.currentQuestionNo;
 			giveQuestion();
 
-			memObj.hasCurrentQuestionBeenAnswered = false; 
+			memObj.hasCurrentQuestionBeenAnswered = false; // COMMENTED OUT - 19/6-2017
 
 			// Dynamisk genereret LaTex:
 			// =========================
@@ -3036,13 +3058,18 @@ function setEventListeners() {
 
 		var redTermStr = suggestReducingTerm(fObj.equation);
 		if (redTermStr != '') {
-			$('#reduceBtnContainer').html(redTermStr);
+			// $('#reduceBtnContainer').html(redTermStr);							// COMMENTED OUT 20/6-2017;
 			$('.operator').addClass('operator_inactive').removeClass('operator');
 			$('.subHeader').addClass('subHeader_inactive').removeClass('subHeader');
 
-			// MathJax.Hub.Queue(function (){
-			// 	MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.reduceBtn')[0]]);
-			// });
+
+			// ADDED 20/6-2017;
+			$('#reduceBtn_hidden').html(redTermStr);  // Add the equation to the hidden container
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#reduceBtn_hidden')[0]]);	
+			MathJax.Hub.Queue(function (){
+				$('#reduceBtnContainer').html($('#reduceBtn_hidden').html());  // Copy the equation from the hidden container to the visible container.
+			});
+
 		} else {
 
 			// isEquationSolved(fObj.equation_old);
@@ -3093,7 +3120,8 @@ function setEventListeners() {
 
 		$('#equationContainer_hidden').html('$$'+poseEquation(fObj.equation)+'$$');  // Add the equation to the hidden container
 
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+		// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);				// COMMENTED OUT 20/6-2017
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#equationContainer_hidden')[0]]);	// ADDED 20/6-2017
 
 		MathJax.Hub.Queue(function (){
 			$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
@@ -3105,6 +3133,8 @@ function setEventListeners() {
 
 	$( document ).on('click', ".reduceBtn", function(event){
 		// performStrikeThrough(equationSide, inverseOperator, reducingTerm);  // <----- 5/4-2017
+
+		$('.reduceBtn').addClass('reduceBtn_inactive').removeClass('reduceBtn');  // ADDED 20/6-2016
 
 		// var formulaArr = fObj.equation_old.replace(/ /g,'').split('=');
 		var formulaArr = fObj.equation.replace(/ /g,'').split('=');
@@ -3173,8 +3203,10 @@ function setEventListeners() {
 					$('#reduceBtnContainer').html('');
 
 					msg_goToNextEquation_or_finish(fObj.equation);
+
+					$('.reduceBtn_inactive').addClass('reduceBtn').removeClass('reduceBtn_inactive');  // ADDED 20/6-2016
 				});
-			}, 2000);
+			}, 1500);
 		});
 
 	});

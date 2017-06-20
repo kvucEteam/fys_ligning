@@ -1,22 +1,76 @@
 {
     "header" : "Omskriv formler",
-    "instruction" : "Du skal isolere en fysisk størrelse så denne står alene på den ene side af lighedstegnet",
+    "instruction" : "Du skal isolere en fysisk størrelse, så denne står alene på den ene side af lighedstegnet.",
     "explanation" : "Størrelser i en ligning isoleres så de senere kan beregnes eller indsættes i andre ligninger. Isolering af en fysisk størrelse gøres med de grundlæggende regneregler du kender fra matematik.",
     "genericQuestion" : "Isoler størrelsen latex{term} i udtrykket latex{equation} for text{phrase}",
-    "lorem_ipsum" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut ultrices finibus felis, non porta eros semper eu. Morbi at tempus felis. Nullam at hendrerit dolor, nec dapibus dolor. Duis condimentum dui sit amet ex vehicula, in tempor quam venenatis. Integer molestie sit amet sem at faucibus. Donec accumsan purus et pellentesque dapibus. Integer sed arcu in nisi mattis cursus sed rutrum eros. Aliquam ut cursus felis, eget mattis dui.",
     "distanceBeforeHelp" : 1,
     "qObj": [
         {
+            "question" : "Isoler sinus til vinklen theta latex{term} i formlen",
+            "equation" : "nn*lambda/sinT = dd",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "sinT",
+                                "sinT": {"sym": "sin(\\theta)", "word": "Sinus til vinklen theta"}, 
+                                "nn": {"sym":"n", "word": "Ordnen", "VIGTIG_NOTE:": " <---- FEJL: 'n' representeres af 'nn', så det ikke opstår problemer med 'n' i 'sinT'"},
+                                "lambda": {"sym":"\\lambda", "word": "Bølgelængden"},
+                                "dd": {"sym":"d", "word": "Gitterkonstanten", "VIGTIG_NOTE:": " <---- FEJL: 'd' representeres af 'dd', så det ikke opstår problemer med 'd' i 'lambda'"}
+                            },
+            "term" : "sinT", 
+            "phrase" : " den rette linje"
+        },
+        {
+            "question" : "Isoler sinus til vinklen theta latex{term} i formlen",
+            "equation" : "nn*lambda = dd*sinT",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "sinT",
+                                "sinT": {"sym": "sin(\\theta)", "word": "Sinus til vinklen theta"}, 
+                                "nn": {"sym":"n", "word": "Ordnen", "VIGTIG_NOTE:": " <---- FEJL: 'n' representeres af 'nn', så det ikke opstår problemer med 'n' i 'sinT'"},
+                                "lambda": {"sym":"\\lambda", "word": "Bølgelængden"},
+                                "dd": {"sym":"d", "word": "Gitterkonstanten", "VIGTIG_NOTE:": " <---- FEJL: 'd' representeres af 'dd', så det ikke opstår problemer med 'd' i 'lambda'"}
+                            },
+            "term" : "sinT", 
+            "phrase" : " den rette linje"
+        },
+        {
             "question" : "Isoler bølgelængden latex{term} i formlen",
-            "equation" : "f = v/lambda",
+            "equation" : "nn*lambda = dd*sinT",
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "lambda",
-                                "lambda": {"sym": "\\lambda", "val": "12 [J]", "word": "Bølgelængden"}, 
-                                "v": {"sym":"v", "val": "12 [J/(kg*K)]", "word": "Hastigheden"},
-                                "f": {"sym":"f", "val": "12 [kg]", "word": "Frekvensen"}
+                                "sinT": {"sym": "sin(\\theta)", "word": "Sinus til vinklen theta"}, 
+                                "nn": {"sym":"n", "word": "Ordnen", "VIGTIG_NOTE:": " <---- FEJL: 'n' representeres af 'nn', så det ikke opstår problemer med 'n' i 'sinT'"},
+                                "lambda": {"sym":"\\lambda", "word": "Bølgelængden"},
+                                "dd": {"sym":"d", "word": "Gitterkonstanten", "VIGTIG_NOTE:": " <---- FEJL: 'd' representeres af 'dd', så det ikke opstår problemer med 'd' i 'lambda'"}
                             },
             "term" : "lambda", 
+            "phrase" : " den rette linje"
+        },
+        {
+            "question" : "Isoler afstanden latex{term} i formlen",
+            "equation" : "v = Ho*r",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "r",
+                                "v": {"sym": "v", "word": "Farten"}, 
+                                "r": {"sym":"r", "word": "Afstanden"},
+                                "Ho": {"sym":"H_0", "word": "Hubbel konstanten"}
+                            },
+            "term" : "r", 
+            "phrase" : " den rette linje"
+        },
+        {
+            "question" : "Isoler Hubbels konstant latex{term} i formlen",
+            "equation" : "v = Ho*r",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "Ho",
+                                "v": {"sym": "v", "word": "Farten"}, 
+                                "r": {"sym":"r", "word": "Afstanden"},
+                                "Ho": {"sym":"H_0", "word": "Hubbel konstanten"}
+                            },
+            "term" : "Ho", 
             "phrase" : " den rette linje"
         },
         {
@@ -25,9 +79,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "v",
-                                "lambda": {"sym": "\\lambda", "val": "12 [J]", "word": "Bølgelængden"}, 
-                                "v": {"sym":"v", "val": "12 [J/(kg*K)]", "word": "Hastigheden"},
-                                "f": {"sym":"f", "val": "12 [kg]", "word": "Frekvensen"}
+                                "lambda": {"sym": "\\lambda", "word": "Bølgelængden"}, 
+                                "v": {"sym":"v", "word": "Hastigheden"},
+                                "f": {"sym":"f", "word": "Frekvensen"}
                             },
             "term" : "v", 
             "phrase" : " den rette linje"
@@ -38,9 +92,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "f",
-                                "lambda": {"sym": "\\lambda", "val": "12 [J]", "word": "Bølgelængden"}, 
-                                "v": {"sym":"v", "val": "12 [J/(kg*K)]", "word": "Hastigheden"},
-                                "f": {"sym":"f", "val": "12 [kg]", "word": "Frekvensen"}
+                                "lambda": {"sym": "\\lambda", "word": "Bølgelængden"}, 
+                                "v": {"sym":"v", "word": "Hastigheden"},
+                                "f": {"sym":"f", "word": "Frekvensen"}
                             },
             "term" : "f", 
             "phrase" : " den rette linje"
@@ -51,9 +105,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "rho",
-                                "rho": {"sym": "\\rho", "val": "12 [J]", "word": "Densiteten"}, 
-                                "V": {"sym":"V", "val": "12 [J/(kg*K)]", "word": "Volumen"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}
+                                "rho": {"sym": "\\rho", "word": "Densiteten"}, 
+                                "V": {"sym":"V", "word": "Volumen"},
+                                "m": {"sym":"m", "word": "Massen"}
                             },
             "term" : "rho", 
             "phrase" : " den rette linje"
@@ -64,9 +118,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "V",
-                                "rho": {"sym": "\\rho", "val": "12 [J]", "word": "Densiteten"}, 
-                                "V": {"sym":"V", "val": "12 [J/(kg*K)]", "word": "Volumen"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}
+                                "rho": {"sym": "\\rho", "word": "Densiteten"}, 
+                                "V": {"sym":"V", "word": "Volumen"},
+                                "m": {"sym":"m", "word": "Massen"}
                             },
             "term" : "V", 
             "phrase" : " den rette linje"
@@ -77,9 +131,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "m",
-                                "rho": {"sym": "\\rho", "val": "12 [J]", "word": "Densiteten"}, 
-                                "V": {"sym":"V", "val": "12 [J/(kg*K)]", "word": "Volumen"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}
+                                "rho": {"sym": "\\rho", "word": "Densiteten"}, 
+                                "V": {"sym":"V", "word": "Volumen"},
+                                "m": {"sym":"m", "word": "Massen"}
                             },
             "term" : "m", 
             "phrase" : " den rette linje"
@@ -90,9 +144,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "Delta_T",
-                                "DeltaE": {"sym": "\\Delta{E}", "val": "12 [J]", "word": "Varmen"}, 
-                                "c": {"sym":"c", "val": "12 [J/(kg*K)]", "word": "Varmecapaciteten"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}, 
+                                "DeltaE": {"sym": "\\Delta{E}", "word": "Varmen"}, 
+                                "c": {"sym":"c", "word": "Varmecapaciteten"},
+                                "m": {"sym":"m", "word": "Massen"}, 
                                 "Delta_T": {"sym":"\\Delta{T}", "val": "12 [K]", "word": "Temperaturforskellen"}
                             },
             "term" : "Delta_T", 
@@ -104,9 +158,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "c",
-                                "DeltaE": {"sym": "\\Delta{E}", "val": "12 [J]", "word": "Varmen"}, 
-                                "c": {"sym":"c", "val": "12 [J/(kg*K)]", "word": "Varmecapaciteten"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}, 
+                                "DeltaE": {"sym": "\\Delta{E}", "word": "Varmen"}, 
+                                "c": {"sym":"c", "word": "Varmecapaciteten"},
+                                "m": {"sym":"m", "word": "Massen"}, 
                                 "Delta_T": {"sym":"\\Delta{T}", "val": "12 [K]", "word": "Temperaturforskellen"}
                             },
             "term" : "c", 
@@ -118,9 +172,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "c",
-                                "DeltaE": {"sym": "\\Delta{E}", "val": "12 [J]", "word": "Varmen"}, 
-                                "c": {"sym":"c", "val": "12 [J/(kg*K)]", "word": "Varmecapaciteten"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}, 
+                                "DeltaE": {"sym": "\\Delta{E}", "word": "Varmen"}, 
+                                "c": {"sym":"c", "word": "Varmecapaciteten"},
+                                "m": {"sym":"m", "word": "Massen"}, 
                                 "Delta_T": {"sym":"\\Delta{T}", "val": "12 [K]", "word": "Temperaturforskellen"}
                             },
             "term" : "c", 
@@ -132,9 +186,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "Delta_T",
-                                "DeltaE": {"sym": "\\Delta{E}", "val": "12 [J]", "word": "Varmen"}, 
-                                "c": {"sym":"c", "val": "12 [J/(kg*K)]", "word": "Varmecapaciteten"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}, 
+                                "DeltaE": {"sym": "\\Delta{E}", "word": "Varmen"}, 
+                                "c": {"sym":"c", "word": "Varmecapaciteten"},
+                                "m": {"sym":"m", "word": "Massen"}, 
                                 "Delta_T": {"sym":"\\Delta{T}", "val": "12 [K]", "word": "Temperaturforskellen"}
                             },
             "term" : "Delta_T", 
@@ -146,9 +200,9 @@
             "operators": ["*", "/"],
             "fObj_translate": {
                                 "target": "m",
-                                "DeltaE": {"sym": "\\Delta{E}", "val": "12 [J]", "word": "Varmen"}, 
-                                "c": {"sym":"c", "val": "12 [J/(kg*K)]", "word": "Varmecapaciteten"},
-                                "m": {"sym":"m", "val": "12 [kg]", "word": "Massen"}, 
+                                "DeltaE": {"sym": "\\Delta{E}", "word": "Varmen"}, 
+                                "c": {"sym":"c", "word": "Varmecapaciteten"},
+                                "m": {"sym":"m", "word": "Massen"}, 
                                 "Delta_T": {"sym":"\\Delta{T}", "val": "12 [K]", "word": "Temperaturforskellen"}
                             },
             "term" : "m", 

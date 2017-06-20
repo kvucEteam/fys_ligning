@@ -16,7 +16,7 @@
 #equationContainer{
 	/*border: 1px solid #0F0;*/
 	font-size: 250%;
-	margin-bottom: 65px;
+	/*margin-bottom: 65px;*/
 }
 #equationContainer_hidden{
 	display: none;
@@ -100,6 +100,16 @@
 	color: #cececc;
 }
 
+.reduceBtn_inactive{
+	color: #cececc;
+}
+
+.reduceBtn_inactive:hover{
+	color: #cececc;
+	background-color: #e7e6e2;
+	cursor: inherit;
+}
+
 .reduceBtn{
 
 }
@@ -118,7 +128,9 @@
 }
 
 #nextBtnContainer {
-	margin-top: 40px;
+	/*margin-top: 40px;*/
+
+	margin-left: 14%;
 }
 
 #next {
@@ -127,4 +139,30 @@
 
 #help_now {
 	margin-right: 10px;
+}
+
+.border_red {
+	border: 3px solid #F00;
+}
+.border_green {
+	border: 3px solid #0F0;
+}
+.border_blue {
+	border: 3px solid #00F;
+}
+.border_black {
+	border: 3px solid #000;
+}
+
+
+@media (max-width: 992px) {
+
+	#nextBtnContainer{
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 15px;
+		width: 240px;
+		position: relative;
+    	left: -23px;
+	}
 }

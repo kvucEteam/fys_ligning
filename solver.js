@@ -257,8 +257,11 @@ solverClass = {
 		// If '+' OR '-' operator are present:  ----->  delete all '*' and '/' operators
 		// ===================================
 		if ((opsStr.indexOf('+')!==-1) || (opsStr.indexOf('-')!==-1)){
+			console.log('reduceOperators - A0');
+
 			for (var i = iObj_ops.length - 1; i >= 0; i--) { 
 				if ('*/'.indexOf(iObj_ops[i].val)!==-1) {
+					console.log('reduceOperators - A1');
 					iObj_ops_red.splice(i, 1);
 				}
 			}
@@ -280,13 +283,15 @@ solverClass = {
 		// If '*' AND '/' operator are present:  ----->  delete all '*' operators, and choose the last '/' operator
 		// ====================================
 		if ((opsStr.indexOf('*')!==-1) && (opsStr.indexOf('/')!==-1)){
+			console.log('reduceOperators - A2');
 			for (var i = iObj_ops.length - 1; i >= 0; i--) { 
 				if ('*'.indexOf(iObj_ops[i].val)!==-1) {
+					console.log('reduceOperators - A3');
 					iObj_ops_red.splice(i, 1);
 				}
 			}
 			opsStr = opsStr.replace(/\*/g, '');
-			console.log('reduceOperators - opsStr 2: ' + opsStr + ', iObj_ops_red: ' + JSON.stringify(iObj_ops_red));
+			console.log('reduceOperators - opsStr 3: ' + opsStr + ', iObj_ops_red: ' + JSON.stringify(iObj_ops_red));
 
 			// // At this point there will only be '/'-operators left - choose the last '/'-operator:
 			// selected_op = iObj_ops_red[iObj_ops_red.length-1];
@@ -296,12 +301,19 @@ solverClass = {
 		// If '*' OR '/' operators are present:  ----->  Select the last operator
 		// ====================================
 		if ((opsStr.indexOf('*')!==-1) || (opsStr.indexOf('/')!==-1)){
+			console.log('reduceOperators - A4');
+
+			console.log('reduceOperators - iObj_ops_red: ' + JSON.stringify(iObj_ops_red));
 			
-			// At this point there will only be '/'- OR '*'-operators left - choose the last operator:
-			selected_op = iObj_ops_red[iObj_ops_red.length-1];
+			// At this point there will only be '/'- OR '*'-operators left - choose the last operator:   // COMMENTED OUT 19/6-2017
+			selected_op = iObj_ops_red[iObj_ops_red.length-1];											// COMMENTED OUT 19/6-2017
+
+			// // At this point there will only be '/'- OR '*'-operators left - choose the last operator: 		// ADDED 19/6-2017   <---- FEJL 19/6-2017 
+			// selected_op = (iObj_ops_red.length > 1)? iObj_ops_red[iObj_ops_red.length-1] : iObj_ops;		// ADDED 19/6-2017		 <---- FEJL 19/6-2017
 			console.log('reduceOperators - selected_op: ' + JSON.stringify(selected_op));
 		}
 
+		console.log('reduceOperators - selected_op: ' + JSON.stringify(selected_op));
 
 		return selected_op;
 	},
@@ -486,7 +498,10 @@ solverClass = {
 	//		a/b/c/d --->  a/(b*c*d)
 	simplyfyFraction: function(equationSide) {
 		console.log('\nsimplyfyFraction - equationSide: ' + equationSide);
+
 		var ob = this.decomposeEquation(equationSide);   // ob = {opObj: opObj, varObj: varObj};
+		console.log('simplyfyFraction - ob: ' + JSON.stringify(ob));
+		
 		var divCount = 0, createParenthesis = false, len;
 		var mem = [];
 		var varLookup = {};  // protocol:  {pos0: var0, pos1: var1, pos2: var2, ...}
@@ -1073,7 +1088,7 @@ solverClass = {
 
 	isolateTarget: function(formula){
 
-		console.log('isolateTarget - formula: ' + formula);
+		console.log('isolateTarget - x - formula: ' + formula);
 
 		this.memObj.stepVars = [];
 
@@ -1108,8 +1123,8 @@ solverClass = {
 		}
 		console.log('isolateTarget - memObj: ' + JSON.stringify(this.memObj, null, 4));
 
-		console.log('isolateTarget - formulaSteps: ' + formulaSteps);
-		console.log('isolateTarget - combinedSteps: ' + combinedSteps);
+		console.log('isolateTarget - x - formulaSteps: ' + formulaSteps);
+		console.log('isolateTarget - x - combinedSteps: ' + combinedSteps);
 
 		// alert('formulaSteps: ' + formulaSteps + '\ncombinedSteps: ' + combinedSteps);
 	},
@@ -1189,6 +1204,20 @@ solverClass = {
 		if (selected_op.val == '/'){  // Always select the denominator for the '/' operator - also when fObj.target is located inside it:
 			console.log('findReducingTerm - A1');
 			reducingTerm = this.returnElement(termArr, selected_op.index, false);
+
+			// ADDED 15/6-2017:
+			// This if-sentence does the following: 
+			// If reducingTerm = (a*b), then select the first term "a" as reducingTerm. This prevents reducingTerm = (a*b) and therefore the need for dynammic insertsion of "(a*b)" as a operator-button in ligning.js
+			if ((reducingTerm.match(/(\+|\-|\/)/g) === null) && (reducingTerm.indexOf('*')!==-1)) {   // If reducingTerm = (a*b), then...
+				console.log('findReducingTerm - A1-a');
+				if (reducingTerm.indexOf(this.fObj.target)!==-1) {	// If the targrt "x" is in the denominator ( <==> reducingTerm = (a*b*x)), then select the target as reducingTerm...
+					console.log('findReducingTerm - A1-b');
+					reducingTerm = this.fObj.target;
+				} else {		
+					console.log('findReducingTerm - A1-c');			// ... else just return the first term (eg. "a" in reducingTerm = (a*b)) as reducingTerm...
+					reducingTerm = reducingTerm.substring(1, reducingTerm.length-1).split('*')[0];
+				}
+			}
 		}
 
 		if ((selected_op.val == '*') || (selected_op.val == '+') || (selected_op.val == '-')){ 
@@ -1204,27 +1233,30 @@ solverClass = {
 		}
 		console.log('findReducingTerm - reducingTerm 0: ' + reducingTerm);
 
-		// ADDED 1/6-2017:     <------  VIGTIG: FEJL hvis nedenstående kodeblok aktiveres!
-		// ===============
-		// The popurse of this code-block is to optimize the following situation: when a = b/(c*d*x)  ---->  reducingTerm = (c*d*x), which causes the program to go through the 
-		// formulaSteps: 
-		// 		(0)   a=b/(c*d*x)
-		// 		(1)   a*c*d*x=b
-		// 		(2)   a*c*x=b/d
-		// 		(3)   a*x=b/(d*c)
-		// 		(4)   x=b/(d*c*a)
-		// BUT a more optimal approach would be to make a check so that, if only the "*" operator is used, then reducingTerm = x, which causes the program to go through the
-		if (reducingTerm.match(/(\+|\-|\/)/g) === null) {  // If the reducingTerm only contains the '*' operator or parenthesis...
-			console.log('findReducingTerm - B0');
 
-			console.log('findReducingTerm - fObj.target: ' + JSON.stringify( this.fObj ));
+		// COMMENTED OUT 15/6-2017:
+		// ========================
+		// // ADDED 1/6-2017:     <------  VIGTIG: FEJL hvis nedenstående kodeblok aktiveres!
+		// // ===============
+		// // The popurse of this code-block is to optimize the following situation: when a = b/(c*d*x)  ---->  reducingTerm = (c*d*x), which causes the program to go through the 
+		// // formulaSteps: 
+		// // 		(0)   a=b/(c*d*x)
+		// // 		(1)   a*c*d*x=b
+		// // 		(2)   a*c*x=b/d
+		// // 		(3)   a*x=b/(d*c)
+		// // 		(4)   x=b/(d*c*a)
+		// // BUT a more optimal approach would be to make a check so that, if only the "*" operator is used, then reducingTerm = x, which causes the program to go through the
+		// if (reducingTerm.match(/(\+|\-|\/)/g) === null) {  // If the reducingTerm only contains the '*' operator or parenthesis...
+		// 	console.log('findReducingTerm - B0');
 
-			if (reducingTerm.indexOf(this.fObj.target) !== -1) {
-				console.log('findReducingTerm - B1');
+		// 	console.log('findReducingTerm - fObj.target: ' + JSON.stringify( this.fObj ));
 
-				reducingTerm = this.fObj.target;
-			}
-		}
+		// 	if (reducingTerm.indexOf(this.fObj.target) !== -1) {
+		// 		console.log('findReducingTerm - B1');
+
+		// 		reducingTerm = this.fObj.target;
+		// 	}
+		// }
 
 		return reducingTerm;
 	},
@@ -2085,9 +2117,10 @@ var sc = Object.create(solverClass);
 // sc.isolateTarget('a=c*x');
 // sc.isolateTarget('a*x=c*x*x');   // <---- FEJL EFTER 9/6-2017 - SE NEDENSTÅENDE LINJE  <--- OK 9/6-2017
 // sc.isolateTarget('a*x*x*x=c*x*x');  // <---- DETTE VIRKER 9/6-2017 - SE OVENSTÅENDE LINJE: Lav et fix i findNextOperator() ift "pege" på den rigtige equationSide 
-// sc.isolateTarget('a/(b*x) = x*c/x');  // <---- FEJL 13/6-2017
-// sc.isolateTarget('a/(b*x)*x=x*c/x*x');  // <---- FEJL 13/6-2017
-// sc.isolateTarget('x/(a*b)=c');  // VIGTIGT: Løser ligning OK, men der skal lave en mulighed for at gange med "(a*b)" i ligning.js
+// sc.isolateTarget('a/(b*x) = x*c/x');  // <---- FEJL 16/6-2017 - men dette er ikke et tilfælde brugeren kommer i da x*c/x = c pga forkortning!
+// sc.isolateTarget('a/(b*x)*x=x*c/x*x');  // <---- FEJL 16/6-2017 - men dette er ikke et tilfælde brugeren kommer i da x*c/x = x*c pga forkortning!
+
+sc.isolateTarget('a*x/b=c');
 
 
 // console.log('solverClass - reducedTargetSide : ' + sc.reduceTargetSide_2(targetSide, inverseOperator, reducingTerm));

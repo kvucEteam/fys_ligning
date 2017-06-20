@@ -6,7 +6,19 @@
     "lorem_ipsum" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut ultrices finibus felis, non porta eros semper eu. Morbi at tempus felis. Nullam at hendrerit dolor, nec dapibus dolor. Duis condimentum dui sit amet ex vehicula, in tempor quam venenatis. Integer molestie sit amet sem at faucibus. Donec accumsan purus et pellentesque dapibus. Integer sed arcu in nisi mattis cursus sed rutrum eros. Aliquam ut cursus felis, eget mattis dui.",
     "distanceBeforeHelp" : 1,
     "qObj": [
-        
+        {
+            "question" : "Isoler Hubbels konstant latex{term} i formlen",
+            "equation" : "v = H_0*r",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "Ho",
+                                "v": {"sym": "v", "val": "12 [J]", "word": "Farten"}, 
+                                "r": {"sym":"n", "val": "12 [J/(kg*K)]", "word": "Afstanden"},
+                                "Ho": {"sym":"H_0", "val": "12 [kg]", "word": "Hubbel konstanten"}
+                            },
+            "term" : "Ho", 
+            "phrase" : " den rette linje"
+        },
         {
             "question" : "Isoler bølgelængden latex{term} i formlen",
             "equation" : "n*lambda/sinT = d",
