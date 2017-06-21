@@ -1994,23 +1994,27 @@ function template() {
 
 	HTML += '<div class="Clear"></div>';
 	HTML += '<div id="interface">';
-	HTML += 	'<div id="rightColumn" class="col-xs-12 col-md-6">';
-	HTML += 		'<div id="questionContainer" class="h3"></div>';
-	HTML += 		'<div id="equationContainer"></div>';   
-	// HTML += 		'<div id="equationContainer" class="fontSize250"></div>';
-	HTML += 		'<div id="equationContainer_hidden" style="display: none;"></div>';
-	HTML += 		'<div id="helpContainer_hidden" style="display: none;"></div>';
-	HTML += 		'<div id="microhint_hidden" style="display: none;"></div>';
-	HTML += 		'<div id="reduceBtn_hidden" style="display: none;"></div>';
-	// HTML += 		'<div id="equationContainer_hidden" class="fontSize250"></div>';
-	// HTML += 		'<div class="Clear"></div> <div id="nextBtnContainer"><div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span></div>';
-	HTML += 	'</div>';
-	HTML += 	'<div id="leftColumn" class="col-xs-12 col-md-6">'; 
-	// HTML += 		((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered');
-	HTML += 		'<div class="autoLeftSpacer"></div>';
-	HTML += 		'<div id="btnContainer"></div>';
-	// HTML += 		'<div class="Clear"></div> <div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span>';
-	HTML += 		'<div id="reduceBtnContainer"></div>'
+	HTML += 	'<div id="questionContainer" class="h3"></div>';
+	HTML += 	'<div id="columnContainer">';
+	HTML += 		'<div id="rightColumn" class="col-xs-12 col-md-6">';
+	// HTML += 			'<div id="questionContainer" class="h3"></div>';
+	HTML += 			'<div id="equationContainer"></div>';   
+	// HTML += 			'<div id="equationContainer" class="fontSize250"></div>';
+	HTML += 			'<div id="equationContainer_hidden" style="display: none;"></div>';
+	HTML += 			'<div id="helpContainer_hidden" style="display: none;"></div>';
+	HTML += 			'<div id="microhint_hidden" style="display: none;"></div>';
+	HTML += 			'<div id="reduceBtn_hidden" style="display: none;"></div>';
+	// HTML += 			'<div id="equationContainer_hidden" class="fontSize250"></div>';
+	// HTML += 			'<div class="Clear"></div> <div id="nextBtnContainer"><div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span></div>';
+	HTML += 		'</div>';
+	HTML += 		'<div id="leftColumn" class="col-xs-12 col-md-6">'; 
+	// HTML += 			((bootstrapcolObj[bootstrapBreakpointSize] < bootstrapcolObj['md'])? 'centered' : 'not-centered');
+	HTML += 			'<div class="autoLeftSpacer"></div>';
+	HTML += 			'<div id="btnContainer"></div>';
+	// HTML += 			'<div class="Clear"></div> <div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span>';
+	HTML += 			'<div id="reduceBtnContainer"></div>'
+	HTML += 		'</div>';
+	HTML += 		'<div class="Clear"></div>';
 	HTML += 	'</div>';
 	// HTML += 	'<div id="leftColumn" class="col-xs-2">'; 
 	HTML += 		'<div class="Clear"></div> <div id="nextBtnContainer"><div id="next" class="btn btn-primary">Næste</div><b>spørgsmål:</b> <span id="questionCount"></span></div>';
@@ -3126,6 +3130,7 @@ function setEventListeners() {
 		MathJax.Hub.Queue(function (){
 			$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
 			mathJaxEquationAjuster('#equationContainer');
+			// verticalPositionAjust('#columnContainer', '#equationContainer', 50);
 		});
 
 		
@@ -3181,8 +3186,6 @@ function setEventListeners() {
 
 
 			// mathJaxEquationAjuster('#equationContainer');
-
-			// mathJaxEquationAjuster2('#equationContainer');
 
 			// sc.reduceTargetSide_2('a+b/(a+d)', '-', 'a')
 			// console.log('.reduceBtn - reduceTargetSide_3: ' + sc.reduceTargetSide_3(fObj.equation_old, fObj.suggestedinverseOperator, fObj.suggestedReducingTerm));
@@ -3337,9 +3340,10 @@ function mathJaxEquationAjuster(equationSelector) {
 		window.fontEquationSize = parseInt($(equationSelector).css('font-size').replace('px', ''));
 	}
 	MathJax.Hub.Queue(function (){
-		var fontSize, count, ajust = false;
+		var fontSize, fontSizeMem,  count, ajust = false;
 		
 		fontSize = parseInt($(equationSelector).css('font-size').replace('px', ''));
+		fontSizeMem = fontSize;
 		console.log('mathJaxEquationAjuster - A0 - fontSize: ' + fontSize + ', fontEquationSize: ' + fontEquationSize);
 		console.log('mathJaxEquationAjuster - MJXc-display: ' + $('.MJXc-display').length + ', mjx-char x: ' + $('.mjx-char').length);  // mjx-char
 		var parentWidth = $(equationSelector).width(); // The width of #equationContainer
@@ -3355,6 +3359,7 @@ function mathJaxEquationAjuster(equationSelector) {
 				console.log('mathJaxEquationAjuster - fontSize: ' + fontSize);
 
 				$(equationSelector).css('font-size', String(fontSize-1)+'px');
+				// $(equationSelector).css({'font-size': String(fontSize-1)+'px', 'position': 'relative', 'top': String(fontSizeMem-fontSize)+'px'});
 
 				parentWidth = $(equationSelector).width(); // The width of #equationContainer
 				childWidth = $(equationSelector + '> .MJXc-display > span').width();
@@ -3372,6 +3377,7 @@ function mathJaxEquationAjuster(equationSelector) {
 				console.log('mathJaxEquationAjuster - fontSize: ' + fontSize + ', fontEquationSize: ' + fontEquationSize);
 
 				$(equationSelector).css('font-size', String(fontSize+1)+'px');
+				// $(equationSelector).css({'font-size': String(fontSize-1)+'px', 'position': 'relative', 'top': String(fontSize - fontSizeMem)+'px'});
 
 				parentWidth = $(equationSelector).width(); // The width of #equationContainer
 				childWidth = $(equationSelector + '> .MJXc-display > span').width();
@@ -3383,12 +3389,14 @@ function mathJaxEquationAjuster(equationSelector) {
 	});
 }
 
-
-function mathJaxEquationAjuster2(equationSelector) {
-	var parentWidth = $(equationSelector).width(); // The width of #equationContainer
-	var childWidth = $(equationSelector + '> .MJXc-display').width();
-
-	$('#equationContainer').css('font-size', '200%');  // <----- VIRKER IKKE!
+// percentage is the percentage-position of the midpoint of the child relative to the parent. 
+// E.g. percentage = 50 will ajust the midpoint of the child at the center of the parent.
+function verticalPositionAjust(parentSelector, childSelector, percentage) {
+	var heightParent = $(parentSelector).height();
+	var posChild = $(childSelector).position();
+	var heightChild = $(childSelector).height();
+	console.log('verticalPositionAjust - heightParent: ' + JSON.stringify(heightParent) + ', posChild: ' + JSON.stringify(posChild) + ', heightChild: ' + JSON.stringify(heightChild));
+	// var calc = heightChild/heightParent;
 }
 
 
@@ -3403,7 +3411,7 @@ $(window).resize(function() {
 
 $(document).ready(function() {
 
-	// jsonData.qObj = shuffelArray(jsonData.qObj);  // <--- Randomize the quiz questions.
+	jsonData.qObj = shuffelArray(jsonData.qObj);  // <--- Randomize the quiz questions.
 
 	initQuiz();
 	autoLeftSpacer();
@@ -3427,6 +3435,7 @@ $(document).ready(function() {
 
 
 	// generateSolution(true);
+
 
 });
 
