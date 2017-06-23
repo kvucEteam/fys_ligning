@@ -3177,7 +3177,8 @@ function setEventListeners() {
 // $('#equationContainer').addClass('fontSize250');  // <----- VIRKER IKKE!
 // $('#equationContainer .MJXc-display').css('font-size', '200%');  // <----- VIRKER IKKE!
 
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+		// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);			    // COMMENTED OUT 22/6-2017
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#equationContainer_hidden')[0]]);	// ADDED 22/6-2017
 
 		MathJax.Hub.Queue(function (){
 			$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
@@ -3197,7 +3198,10 @@ function setEventListeners() {
 
 			setTimeout(function(){
 				$('#equationContainer_hidden').html('$$'+ poseEquation(fObj.equation) + '$$');  // Add the equation to the hidden container
-				MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);
+				
+				// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#interface')[0]]);				// COMMENTED OUT 22/6-2017
+				MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#equationContainer_hidden')[0]]);	// ADDED 22/6-2017
+
 				MathJax.Hub.Queue(function (){
 					$('#equationContainer').html($('#equationContainer_hidden').html()); 
 
