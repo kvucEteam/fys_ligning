@@ -3129,7 +3129,9 @@ function setEventListeners() {
 
 		MathJax.Hub.Queue(function (){
 			$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
+			$( "#equationContainer" ).hide();				// ADDED 23/6-2017
 			mathJaxEquationAjuster('#equationContainer');
+			$( "#equationContainer" ).fadeIn( "slow" );    // ADDED 23/6-2017
 			// verticalPositionAjust('#columnContainer', '#equationContainer', 50);
 		});
 
@@ -3182,7 +3184,8 @@ function setEventListeners() {
 
 		MathJax.Hub.Queue(function (){
 			$('#equationContainer').html($('#equationContainer_hidden').html());  // Copy the equation from the hidden container to the visible container.
-
+			$( "#equationContainer" ).hide();				// ADDED 23/6-2017
+			$( "#equationContainer" ).fadeIn( "slow" );    // ADDED 23/6-2017
 			bugfix_strikeThrough();
 
 
@@ -3204,6 +3207,8 @@ function setEventListeners() {
 
 				MathJax.Hub.Queue(function (){
 					$('#equationContainer').html($('#equationContainer_hidden').html()); 
+					$( "#equationContainer" ).hide();				// ADDED 23/6-2017
+					$( "#equationContainer" ).fadeIn( "slow" );    // ADDED 23/6-2017
 
 					$('.operator_inactive').addClass('operator').removeClass('operator_inactive');
 					$('.subHeader_inactive').addClass('subHeader').removeClass('subHeader_inactive');
