@@ -1602,9 +1602,12 @@ function msg_goToNextEquation_or_finish(formula) {
 			// $('#next').text('Næste opgave');   // 19/6-2017
 
 			// microhint($(this), 'Hmmm... er du sikker på det?', true,"red");
-			microhint($('#next'), "<div class='microhint_label_success'>Opgaven er løst <b>korrekt!</b> </div> Klik for at gå til næste opgave ", true, "#000");
 
-			memObj.hasCurrentQuestionBeenAnswered = true; 
+			setTimeout(function(){  // This delay allows the student to see the result before firing the microhint!
+				microhint($('#next'), "<div class='microhint_label_success'>Opgaven er løst <b>korrekt!</b> </div> Klik for at gå til næste opgave ", true, "#000");
+
+				memObj.hasCurrentQuestionBeenAnswered = true; 
+			}, 1500);
 
 			$('#questionCount').text(String(memObj.currentQuestionNo+1) +' ud af '+ memObj.numOfquestions);
 		} else {
@@ -2333,7 +2336,8 @@ function makeBtnOperatorChoises(equation, operatorArr) {
 	console.log('makeBtnOperatorChoises - termArr 1: ' + termArr);
 	termArr = termArr.filter( onlyUnique );
 	console.log('makeBtnOperatorChoises - termArr 2: ' + termArr);
-	var operatorLookup = {'*':'Multiplicer', '/':'Divider', '+':'Adder', '-':'Subtraher'};
+	// var operatorLookup = {'*':'Multiplicer', '/':'Divider', '+':'Adder', '-':'Subtraher'}; // COMMENTED OUT 26/6-2017, DUE TO FEEDBACK FROM SLK.
+	var operatorLookup = {'*':'Gang', '/':'Divider', '+':'Plus', '-':'Minus'};  // ADDED 26/6-2017, DUE TO FEEDBACK FROM SLK.
 	var latexLookup = {'*': '\\cdot', '/': '/', '+': '+', '-': '-'}
 	var HTML = '';
 	for (var m in operatorArr) {
@@ -2344,7 +2348,8 @@ function makeBtnOperatorChoises(equation, operatorArr) {
 		// HTML += '</div>';
 
 		HTML += '<div class="operatorGroup">';
-		HTML += '<h4 class="subHeader">'+operatorLookup[operatorArr[m]]+' med:' + '</h4>';
+		// HTML += '<h4 class="subHeader">'+operatorLookup[operatorArr[m]]+' med:' + '</h4>';   			// COMMENTED OUT 26/6-2017, DUE TO FEEDBACK FROM SLK.
+		HTML += '<h4 class="subHeader">'+operatorLookup[operatorArr[m]]+' på begge sider med:' + '</h4>';	// ADDED 26/6-2017, DUE TO FEEDBACK FROM SLK.
 		for (var n in termArr) {
 			HTML += '<div class="operator operator_small_1 btn btn-lg btn-info" data-operator='+operatorArr[m]+' data-term='+termArr[n]+'>'+((jq.fObj_translate.hasOwnProperty(termArr[n]))? '\\('+jq.fObj_translate[termArr[n]].sym+'\\)' : termArr[n])+'</div>';
 		}
@@ -2864,7 +2869,8 @@ function generateSolution(solveFromTheBeginning) {
 	var target = jq.fObj_translate.target;
 	var reducingTerm, count = 0, leftSide, rightSide, nominator, denominator, eqSideStr = '', pos_calc, pos, len;
 
-	var operatorLookup = {'*':'Multiplicer', '/':'Divider', '+':'Adder', '-':'Subtraher'};
+	// var operatorLookup = {'*':'Multiplicer', '/':'Divider', '+':'Adder', '-':'Subtraher'}; // COMMENTED OUT 26/6-2017, DUE TO FEEDBACK FROM SLK.
+	var operatorLookup = {'*':'Gang', '/':'Divider', '+':'Plus', '-':'Minus'};  // ADDED 26/6-2017, DUE TO FEEDBACK FROM SLK.
 	var reduceLookup = {'*':'Forkort', '/':'Forkort', '+':'Reducer', '-':'Reducer'};
 	var inversOpsLookup = {'/':'*', '*':'/', '+':'-', '-':'+'};
 
@@ -2914,7 +2920,8 @@ function generateSolution(solveFromTheBeginning) {
 		console.log('generateSolution - n: ' + n + ', formula: ' + sc.memObj.stepVars[n].formula + ', inverseOperator: ' + inverseOperator + ', reducingTerm: ' + reducingTerm);
 
 		++count;
-		solveGuide += '('+count+') '+ operatorLookup[inverseOperator] + ' med ' + (((typeof(jq.fObj_translate[reducingTerm])!=='undefined') && (jq.fObj_translate[reducingTerm].hasOwnProperty('word')))? jq.fObj_translate[reducingTerm].word.toLowerCase() : '') + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+'\\) på begge sider af lighedsteget: <br><br>'; 
+		// solveGuide += '('+count+') '+ operatorLookup[inverseOperator] + ' med ' + (((typeof(jq.fObj_translate[reducingTerm])!=='undefined') && (jq.fObj_translate[reducingTerm].hasOwnProperty('word')))? jq.fObj_translate[reducingTerm].word.toLowerCase() : '') + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+'\\) på begge sider af lighedsteget: <br><br>'; // COMMENTED OUT 26/6-2017, DUE TO FEEDBACK FROM SLK.
+		solveGuide += '('+count+') '+ operatorLookup[inverseOperator] + ' med ' + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+'\\) på begge sider af lighedsteget: <br><br>';  // ADDED 26/6-2017, DUE TO FEEDBACK FROM SLK.
 		solveGuide += '$$'+equationToLatex(convertTermsToLatexTerms( sc.memObj.stepVars[n].reducableFormula ))+'$$'; //  + '<br><br>';
 
 		console.log('generateSolution - reducedFormula: ' + sc.memObj.stepVars[n].reducedFormula);
@@ -2950,7 +2957,8 @@ function generateSolution(solveFromTheBeginning) {
 		// solveGuide += sc.memObj.stepVars[n].reducedFormula + '<br><br>';
 
 		++count; 
-		solveGuide += '('+count+') '+ reduceLookup[inverseOperator] + ' med ' + (((typeof(jq.fObj_translate[reducingTerm])!=='undefined') && (jq.fObj_translate[reducingTerm].hasOwnProperty('word')))? jq.fObj_translate[reducingTerm].word.toLowerCase() : '') + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+ '\\): <br><br>';
+		// solveGuide += '('+count+') '+ reduceLookup[inverseOperator] + ' med ' + (((typeof(jq.fObj_translate[reducingTerm])!=='undefined') && (jq.fObj_translate[reducingTerm].hasOwnProperty('word')))? jq.fObj_translate[reducingTerm].word.toLowerCase() : '') + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+ '\\): <br><br>';  // COMMENTED OUT 26/6-2017, DUE TO FEEDBACK FROM SLK.
+		solveGuide += '('+count+') '+ reduceLookup[inverseOperator] + ' med ' + ' \\('+((typeof(jq.fObj_translate[reducingTerm])!=='undefined')? jq.fObj_translate[reducingTerm].sym : poseEquation(reducingTerm))+ '\\): <br><br>';  // ADDED 26/6-2017, DUE TO FEEDBACK FROM SLK.
 		solveGuide += '$$'+equationToLatex(convertTermsToLatexTerms( sc.memObj.stepVars[n].reducedFormula ))+'$$'; // + '<br><br>';
 	}
 
@@ -2988,40 +2996,58 @@ function setEventListeners() {
 	$( document ).on('click', "#next", function(event){ 
 		console.log('#next - CLICKED');
 
-		if (memObj.hasCurrentQuestionBeenAnswered) {
-			console.log('#next - CLICKED - A0');
+		
 
-			// giveQuestion();
-			++memObj.currentQuestionNo;
-			giveQuestion();
+			if (memObj.hasCurrentQuestionBeenAnswered) {
+				console.log('#next - CLICKED - A0');
 
-			memObj.hasCurrentQuestionBeenAnswered = false; // COMMENTED OUT - 19/6-2017
+				
+				// setTimeout(function(){
 
-			// Dynamisk genereret LaTex:
-			// =========================
-	  //       microhint($("#equationContainer"), poseQuestion(), "red");   // #micro_hint
-	  //       MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
+					$('.microhint').remove();
 
-	  //       MathJax.Hub.Queue(function () {
-			// 	console.log('mathJaxQueue - MJXc-display: ' + $('.MJXc-display').length);
-			// });
+					// giveQuestion();
+					++memObj.currentQuestionNo;
+					giveQuestion();
+
+					memObj.hasCurrentQuestionBeenAnswered = false; 
+
+				// }, 10000);
 
 
-			// mathJaxEquationAjuster('#equationContainer');
-		} 
-		else {
-			if (typeof(nextBtnHintCount) === 'undefined') {
-				window.nextBtnHintCount = 0;
+
+				// Dynamisk genereret LaTex:
+				// =========================
+		  //       microhint($("#equationContainer"), poseQuestion(), "red");   // #micro_hint
+		  //       MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
+
+		  //       MathJax.Hub.Queue(function () {
+				// 	console.log('mathJaxQueue - MJXc-display: ' + $('.MJXc-display').length);
+				// });
+
+
+				// mathJaxEquationAjuster('#equationContainer');
+			} 
+			else {
+				if (typeof(nextBtnHintCount) === 'undefined') {
+					window.nextBtnHintCount = 0;
+				}
+				if (nextBtnHintCount == 0) {
+					microhint($('#next'), "Opgaven er ikke løst endnu, så du kan ikke gå til næste opgave.", true, "#000");
+				}
+				if (nextBtnHintCount >= 1) {
+
+					if ($('.reduceBtn').length > 0) { 
+						microhint($('#next'), "Opgaven er ikke løst endnu, så du kan ikke gå til næste opgave. <br> For at simplificere udtrykket, skal du forkorte det.", true, "#000");
+					} else {
+						microhint($(this), 'Tryk på "Se løsningsforslag" hvis du ønsker hjælp til lødningen! <br><br> <span id="help_now" class="btn btn-info">Se løsningsforslag</span> ', true,"#000");
+					}
+				}
+
+				++nextBtnHintCount;
 			}
-			if (nextBtnHintCount == 0) {
-				microhint($('#next'), "Opgaven er ikke løst endnu, så du kan ikke gå næste opgave.", true, "#000");
-			}
-			if (nextBtnHintCount >= 1) {
-				microhint($('#next'), "Opgaven er ikke løst endnu, så du kan ikke gå næste opgave. <br> Prøv at arbejde dig videre med omskrivningen af formlen - du får mulighed for hjælp undervejs.", true, "#000");
-			}
 
-			++nextBtnHintCount;
-		}
+		
 	});
 
 	$( document ).on('click', ".operator", function(event){ 
@@ -3074,51 +3100,52 @@ function setEventListeners() {
 				$('#reduceBtnContainer').html($('#reduceBtn_hidden').html());  // Copy the equation from the hidden container to the visible container.
 			});
 
-		} else {
+		} 
 
-			// isEquationSolved(fObj.equation_old);
-			// isEquationSolved(fObj.equation);
-
-			if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion == jsonData.distanceBeforeHelp) {
-
-	   			// DENNE MICROHINT-TEST VIRKER IKKE - DENNE STANDARD METODE FEJLER (CONSOL ERROR)
-	   			// $('#microhint_hidden').html('$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$');  // Add the equation to the hidden container
-				// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#microhint_hidden')[0]]);
-				// MathJax.Hub.Queue(function (){
-				// 	microhint($(this), $('#microhint_hidden').html(), true,"red");
-				// 	// UserMsgBox('body', $('#microhint_hidden').html());    // <--- VIRKER FINT MED USERMSGBOX!
-				// 	// microhint($(this), "Dette er en test!", true,"red");  // <--- VIRKER IKKE!
-				// });
+		// ELSE-CLAUSE UDKOMMENTERET d. 26/6 efter SLK har konstateret at hints ikke er konsekvente:
+		// else {
 
 
-				// DENNE MICROHINT-TEST VIRKER
-				// microhint($(this), "Denne teste virker fint ;-)", true,"red");  // <--- VIRKER HELT FINT!
+		// 	if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion == jsonData.distanceBeforeHelp) {
+
+	 //   			// DENNE MICROHINT-TEST VIRKER IKKE - DENNE STANDARD METODE FEJLER (CONSOL ERROR)
+	 //   			// $('#microhint_hidden').html('$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$');  // Add the equation to the hidden container
+		// 		// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#microhint_hidden')[0]]);
+		// 		// MathJax.Hub.Queue(function (){
+		// 		// 	microhint($(this), $('#microhint_hidden').html(), true,"red");
+		// 		// 	// UserMsgBox('body', $('#microhint_hidden').html());    // <--- VIRKER FINT MED USERMSGBOX!
+		// 		// 	// microhint($(this), "Dette er en test!", true,"red");  // <--- VIRKER IKKE!
+		// 		// });
 
 
-				// DENNE MICROHINT-TEST MED TIMER VIRKER IKKE - CONSOL ERROR
-				// $('#microhint_hidden').html('$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$');  // Add the equation to the hidden container
-				// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#microhint_hidden')[0]]);
-				// MathJax.Hub.Queue(function (){
-				// 	setTimeout(function(){
-				// 		microhint($(this), $('#microhint_hidden').html(), true,"red");
-				// 	}, 1000);
-				// });
+		// 		// DENNE MICROHINT-TEST VIRKER
+		// 		// microhint($(this), "Denne teste virker fint ;-)", true,"red");  // <--- VIRKER HELT FINT!
 
 
-				// microhint($(this), '$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$', true,"red");  // <---- DENNE MICROHINT-TEST VIRKER IKKE - PILEN I MICROHINTET ER IKKE SYNLIG!
-				microhint($(this), 'Du har ved denne operation forlænget vejen til en løsning!', true, "#000");
-				// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
-			}
+		// 		// DENNE MICROHINT-TEST MED TIMER VIRKER IKKE - CONSOL ERROR
+		// 		// $('#microhint_hidden').html('$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$');  // Add the equation to the hidden container
+		// 		// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('#microhint_hidden')[0]]);
+		// 		// MathJax.Hub.Queue(function (){
+		// 		// 	setTimeout(function(){
+		// 		// 		microhint($(this), $('#microhint_hidden').html(), true,"red");
+		// 		// 	}, 1000);
+		// 		// });
 
-			if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion == jsonData.distanceBeforeHelp+1) {
-				microhint($(this), 'Du har nu yderligere forlænget vejen til en løsning!', true,"#000");
-			}
 
-			if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion >= jsonData.distanceBeforeHelp+2) {
-				microhint($(this), 'Tryk på "Se løsningsforslag" hvis du ønsker hjælp til lødningen! <br><br> <span id="help_now" class="btn btn-info">Se løsningsforslag</span> ', true,"#000");
-			}
+		// 		// microhint($(this), '$$'+equationToLatex(convertTermsToLatexTerms( 'E=m*c^2' ))+'$$', true,"red");  // <---- DENNE MICROHINT-TEST VIRKER IKKE - PILEN I MICROHINTET ER IKKE SYNLIG!
+		// 		microhint($(this), 'Du har ved denne operation forlænget vejen til en løsning!', true, "#000");
+		// 		// MathJax.Hub.Queue(["Typeset",MathJax.Hub,$('.microhint')[0]]);
+		// 	}
+
+		// 	if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion == jsonData.distanceBeforeHelp+1) {
+		// 		microhint($(this), 'Du har nu yderligere forlænget vejen til en løsning!', true,"#000");
+		// 	}
+
+		// 	if (solveObj.noOfStepsToCompletion - fObj.noOfStepsToCompletion >= jsonData.distanceBeforeHelp+2) {
+		// 		microhint($(this), 'Tryk på "Se løsningsforslag" hvis du ønsker hjælp til lødningen! <br><br> <span id="help_now" class="btn btn-info">Se løsningsforslag</span> ', true,"#000");
+		// 	}
 		
-		}
+		// }
 
 		msg_goToNextEquation_or_finish(fObj.equation);
 

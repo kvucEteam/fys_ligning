@@ -6,7 +6,7 @@
     "distanceBeforeHelp" : 1,
     "qObj": [
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler sinus til vinklen theta latex{term} i formlen",
             "equation" : "nn*lambda/sinT = dd",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -20,7 +20,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler sinus til vinklen theta latex{term} i formlen",
             "equation" : "nn*lambda = dd*sinT",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -34,7 +34,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler bølgelængden latex{term} i formlen",
             "equation" : "nn*lambda = dd*sinT",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -48,7 +48,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler afstanden latex{term} i formlen",
             "equation" : "v = Ho*r",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -61,7 +61,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler Hubbels konstant latex{term} i formlen",
             "equation" : "v = Ho*r",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -74,7 +74,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler hastigheden latex{term} i formlen",
             "equation" : "lambda = v/f",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -87,7 +87,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler frekvensen latex{term} i formlen",
             "equation" : "lambda = v/f",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -100,7 +100,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler densiteten latex{term} i formlen",
             "equation" : "V = m/rho",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -113,7 +113,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler volumen latex{term} i formlen",
             "equation" : "rho = m/V",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -126,7 +126,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler massen latex{term} i formlen",
             "equation" : "rho = m/V",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -139,7 +139,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler varmen latex{term} i formlen",
             "equation" : "DeltaE/Delta_T = c*m",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -153,7 +153,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler varmecapaciteten latex{term} i formlen",
             "equation" : "DeltaE/(c*m) = Delta_T",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -167,7 +167,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler varmecapaciteten latex{term} i formlen",
             "equation" : "DeltaE = c*m*Delta_T",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -181,7 +181,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler temperaturforskellen latex{term} i formlen",
             "equation" : "DeltaE = c*m*Delta_T",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -195,7 +195,7 @@
             "phrase" : " den rette linje"
         },
         {
-            "question" : "Isoler latex{term} i formlen",
+            "question" : "Isoler massen latex{term} i formlen",
             "equation" : "DeltaE = c*m*Delta_T",
             "operators": ["*", "/"],
             "fObj_translate": {
@@ -207,6 +207,38 @@
                             },
             "term" : "m", 
             "phrase" : " den rette linje"
+        }
+    ],
+    "BACKUP": [
+        {
+            "question" : "Isoler størrelsen {term} i udtrykket {equation} for {phrase}",
+            "term" : "x", "equation" : "(a*x + b)/c + 2 = y", "phrase" : "den rette linje"
+        },
+        {
+            "question" : "Isoler størrelsen {term} i udtrykket {equation} for {phrase}",
+            "term" : "x", "equation" : "(a*x + b)/c + 3 = y", "phrase" : "den rette linje"
+        },
+        {
+            "question" : "Isoler størrelsen {term} i udtrykket {equation} for {phrase}",
+            "term" : "x", "equation" : "(a*x + b)/c + 4 = y", "phrase" : "den rette linje"
+        },
+        {
+            "question" : "Isoler størrelsen latex{term} i udtrykket latex{equation} for text{phrase}, latex{test} cc eller \\(test2_{test2}\\)",
+            "equation" : "dd = (d+(a+abe+br/c))/e*a",
+            "operators": ["*", "/"],
+            "fObj_translate": {
+                                "target": "c", 
+                                "dd": {"sym":"dd_x", "val": "12 [kg]"}, 
+                                "d": {"sym": "d_x", "val": "12 [J]"}, 
+                                "a": {"sym":"a_x", "val": "12 [J/(kg*K)]"},
+                                "abe": {"sym":"abe_x", "val": "12 [kg]"}, 
+                                "br": {"sym":"br_x", "val": "12 [kg]"}, 
+                                "c": {"sym":"c_x", "val": "12 [kg]"},
+                                "e": {"sym":"e_x", "val": "12 [kg]"}
+                            },
+            "term" : "c", 
+            "phrase" : " den rette linje",
+            "test": "test_{test}"
         }
     ]
 }
