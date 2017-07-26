@@ -2036,7 +2036,10 @@ function initQuiz() {
 	template();
 	main();
 	setEventListeners();
-
+	
+	/// THAN : Måske kan vi få den til at fyre efter der er blevet rescalet til mobil? 
+	microhint($(".operator").eq(1), "Klik på elementerne for at arbejde dig frem mod at isolere størrelserne.")
+	//
 }
 
 
