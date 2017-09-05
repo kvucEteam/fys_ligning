@@ -128,6 +128,18 @@
 // 						CONVERT AN EQUATION INTO LATEX
 // ==================================================================================================================== 
 
+
+// ADDED 25/9-2017:
+// This is a workaround the ".repeat()" function does not work in some versions of Internet Explorer - see:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat
+// The solution of "adding" this method to the String object can be found here:
+// https://stackoverflow.com/questions/1877475/repeat-character-n-times
+String.prototype.repeat = function(n){
+    n= n || 1;
+    return Array(n+1).join(this);
+}
+
+
 function posOfChar(formula, Char){
 	posArr = [];
 	pos = formula.indexOf(Char);
@@ -951,7 +963,16 @@ console.log("performStrikeThrough_onlyMultAndDiv('a*a*b/(a*c)', '/', 'a'): " + p
 function replaceStrikeThroughDelimiter(equation) {
 	console.log('\nreplaceStrikeThroughDelimiter - equation 1: ' + equation);
 
-	var mArr = equation.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
+	// var mArr = equation.match(new RegExp(/\w+(_strikeThrough)/, 'g'));  // COMMENTED OUT 25/9-2017
+	// var mArr = equation.match(new RegExp(/\w+\(_strikeThrough\)/, 'g'));  // ADDED 25/9-2017
+	// var mArr = equation.match(new RegExp(/\w+_strikeThrough/, 'g'));  // ADDED 25/9-2017
+	// var mArr = equation.match(new RegExp(/\w+\_strikeThrough/, 'g'));  // ADDED 25/9-2017
+
+	// var re = new RegExp(/\w+_strikeThrough/, 'g'); // ADDED 25/9-2017
+	var re = /\w+(_strikeThrough)/g;               // ADDED 25/9-2017
+	var mArr = equation.match(re); 				   // ADDED 25/9-2017
+
+	console.log('replaceStrikeThroughDelimiter - mArr: ' + JSON.stringify(mArr));
 
 	if (mArr !== null){
 		for (var n in mArr) {
@@ -969,7 +990,10 @@ replaceStrikeThroughDelimiter('a/b=b_strikeThrough*c/b_strikeThrough');
 function replaceStrikeThroughDelimiter_2(equation) {
 	console.log('\nreplaceStrikeThroughDelimiter_2 - equation 1: ' + equation);
 
-	var mArr = equation.match(new RegExp(/\w+(_strikeThrough)/, 'g'));
+	// var mArr = equation.match(new RegExp(/\w+(_strikeThrough)/, 'g'));   // COMMENTED OUT 25/9-2017
+
+	var re = /\w+(_strikeThrough)/g;    // ADDED 25/9-2017
+	var mArr = equation.match(re);		// ADDED 25/9-2017
 
 	var term;
 
@@ -2267,7 +2291,10 @@ function convertTermsToLatexTerms(equation){
 	termStr_mod = termStr_mod.substring(1, termStr_mod.length-1);
 	console.log('convertTermsToLatexTerms - termStr_mod 3: ' + termStr_mod);
 
-	var opArr = equation.match(new RegExp(/\W+/, 'g'));
+	// var opArr = equation.match(new RegExp(/\W+/, 'g'));   // COMMENTED OUT 25/9-2017
+	var re = /\W+/g;					// ADDED 25/9-2017
+	var opArr = equation.match(re); 	// ADDED 25/9-2017
+
 	console.log('convertTermsToLatexTerms - opArr: ' + opArr);
 
 	for (var n in opArr) {
@@ -2996,7 +3023,8 @@ function setEventListeners() {
 	$( document ).on('click', "#next", function(event){ 
 		console.log('#next - CLICKED');
 
-		
+		console.log('#next - $(".reduceBtn").length: ' + $('.reduceBtn').length);
+		console.log('#next - $("#interfaceContainer").length: ' + $('#interfaceContainer').length);
 
 			if (memObj.hasCurrentQuestionBeenAnswered) {
 				console.log('#next - CLICKED - A0');
@@ -3168,7 +3196,8 @@ function setEventListeners() {
 	$( document ).on('click', ".reduceBtn", function(event){
 		// performStrikeThrough(equationSide, inverseOperator, reducingTerm);  // <----- 5/4-2017
 
-		$('.reduceBtn').addClass('reduceBtn_inactive').removeClass('reduceBtn');  // ADDED 20/6-2016
+		$('.reduceBtn').addClass('reduceBtn_inactive').removeClass('reduceBtn');  // ADDED 20/6-2017
+		$('.microhint').remove();  // ADDED 29/6-2017
 
 		// var formulaArr = fObj.equation_old.replace(/ /g,'').split('=');
 		var formulaArr = fObj.equation.replace(/ /g,'').split('=');
@@ -3239,11 +3268,12 @@ function setEventListeners() {
 
 					$('.operator_inactive').addClass('operator').removeClass('operator_inactive');
 					$('.subHeader_inactive').addClass('subHeader').removeClass('subHeader_inactive');
-					$('#reduceBtnContainer').html('');
+					// $('#reduceBtnContainer').html('');  // COMMENTED OUT 29/6-2017
+					$('.reduceBtn_inactive').remove();	   // ADDED 29/6-2017	
 
 					msg_goToNextEquation_or_finish(fObj.equation);
 
-					$('.reduceBtn_inactive').addClass('reduceBtn').removeClass('reduceBtn_inactive');  // ADDED 20/6-2016
+					// $('.reduceBtn_inactive').addClass('reduceBtn').removeClass('reduceBtn_inactive');  // ADDED 20/6-2016 - COMMENTED OUT 29/6-2017
 				});
 			}, 1500);
 		});

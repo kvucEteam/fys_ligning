@@ -2205,7 +2205,7 @@ sc.isolateTarget('a*x/b=c');
 // console.log('removeParenthesisAroundSingleVariable("(a)/(c)*k"): ' + sc.removeParenthesisAroundSingleVariable("(a)/(c)*k") );
 // console.log('removeParenthesisAroundSingleVariable("(sin(x))/(c)*k"): ' + sc.removeParenthesisAroundSingleVariable("(sin(x))/(c)*k") );
 
-
+console.log('outerParenthesisBound("((...)((...)))(...)"): ' + JSON.stringify( sc.outerParenthesisBound('((...)((...)))(...)')) );
 
 // 1/(3*(1+a*x/b))*((a+b)*(3*(1+c)))+c=k
 // a/b*d-e+f*h=a*x
